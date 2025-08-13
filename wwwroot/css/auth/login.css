@@ -1,0 +1,242 @@
+﻿/* General */
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #0C0C36; /* Mantener color base */
+    color: #333;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Contenedor */
+.login-container {
+    width: 100%;
+    max-width: 420px;
+    padding: 20px;
+}
+
+/* Caja principal */
+.login-box {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(12, 12, 54, 0.5); /* sombra azul base */
+    text-align: center;
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Logo */
+.logo h1 {
+    color: #0C0C36; /* Azul base */
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 5px;
+    letter-spacing: 2px;
+}
+
+.logo p {
+    color: #555;
+    font-size: 16px;
+    margin: 0;
+}
+
+/* Inputs */
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+    .form-group label {
+        font-weight: 600;
+        color: #0C0C36;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+.form-control {
+    width: 100%;
+    padding: 14px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+    .form-control:focus {
+        border-color: #FFD700;
+        box-shadow: 0 0 8px rgba(255,215,0,0.3);
+        outline: none;
+    }
+
+/* Botón Login */
+.btn-login {
+    width: 100%;
+    padding: 14px;
+    border-radius: 8px;
+    border: none;
+    background-color: #0C0C36;
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+}
+
+    .btn-login:hover {
+        background-color: #FFD700;
+        color: #0C0C36;
+        box-shadow: 0 5px 15px rgba(255,215,0,0.4);
+        transform: translateY(-2px);
+    }
+
+/* Botón Microsoft */
+/* Botón Microsoft SIEMPRE amarillo */
+.btn-microsoft {
+    width: 100%;
+    padding: 14px;
+    border-radius: 8px;
+    border: none;
+    background-color: #FFD700; /* Amarillo por defecto */
+    color: #0C0C36; /* Azul oscuro para contraste */
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+    .btn-microsoft i {
+        margin-right: 10px;
+        color: #0C0C36; /* Icono también azul oscuro */
+    }
+
+    .btn-microsoft:hover {
+        background-color: #e6c200; /* Amarillo un poco más oscuro al hover */
+        box-shadow: 0 5px 15px rgba(255,215,0,0.4);
+        transform: translateY(-2px);
+    }
+
+/* Separador */
+.separator {
+    display: flex;
+    align-items: center;
+    margin: 25px 0;
+    color: #777;
+}
+
+    .separator::before, .separator::after {
+        content: "";
+        flex: 1;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .separator::before {
+        margin-right: 10px;
+    }
+
+    .separator::after {
+        margin-left: 10px;
+    }
+
+/* Registro */
+.register-link {
+    margin-top: 20px;
+    color: #5E5E5E;
+}
+
+    .register-link a {
+        color: #0C0C36;
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+
+        .register-link a:hover {
+            color: #FFD700;
+            text-decoration: underline;
+        }
+
+/* Validación */
+.text-danger {
+    color: #E74C3C !important;
+    font-size: 14px;
+    margin-top: 5px;
+    display: block;
+}
+/* Caja principal con brillo */
+.login-box {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 40px;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 10px 30px rgba(12, 12, 54, 0.5);
+    animation: fadeIn 0.8s ease-in-out;
+    overflow: hidden;
+}
+
+    /* Brillo detrás con pseudo-elemento */
+    .login-box::before {
+        content: "";
+        position: absolute;
+        top: -20%;
+        left: -20%;
+        width: 140%;
+        height: 140%;
+        background: radial-gradient(circle, rgba(255,215,0,0.25), transparent 70%);
+        z-index: -1;
+        animation: pulseGlow 6s infinite alternate;
+        border-radius: inherit;
+    }
+
+/* Animación suave del brillo */
+@keyframes pulseGlow {
+    from {
+        transform: scale(1);
+        opacity: 0.6;
+    }
+
+    to {
+        transform: scale(1.1);
+        opacity: 0.9;
+    }
+}
+/* Caja principal con borde brillante */
+.login-box {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 40px;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.7); /* resplandor inicial */
+    animation: glowBorder 2s infinite alternate;
+}
+
+/* Animación del brillo */
+@keyframes glowBorder {
+    from {
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.4), 0 0 30px rgba(255, 215, 0, 0.2);
+    }
+
+    to {
+        box-shadow: 0 0 25px rgba(255, 215, 0, 0.9), 0 0 50px rgba(255, 215, 0, 0.6);
+    }
+}
+
