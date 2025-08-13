@@ -1,6 +1,7 @@
+using GestionAnticipos.Data;
+using GestionAnticiposApp.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using GestionAnticipos.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddRoles<IdentityRole>() // Añadir soporte para roles
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
 
@@ -50,5 +52,39 @@ app.MapControllerRoute(
 app.MapRazorPages()
    .WithStaticAssets();
 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    await SeedData.Initialize(services);
+}
+
+//// al final de program.cs, antes de app.run()
+//using (var scope = app.Services.CreateScope())
+//{
+//    var services = scope.ServiceProvider;
+//    await CrearRoles(services);
+//}
+
 
 app.Run();
+
+
+//async Task CrearRoles(IServiceProvider serviceProvider)
+//{
+//    var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+//    string[] roles = { "Admin", "Usuario", "Aprobador", "Lector" };
+//    IdentityResult roleResult;
+
+//    foreach (var role in roles)
+//    {
+//        var roleExist = await roleManager.RoleExistsAsync(role);
+//        if (!roleExist)
+//        {
+//            // Crear el rol si no existe
+//            roleResult = await roleManager.CreateAsync(new IdentityRole(role));
+//        }
+//    }
+//}
+
+

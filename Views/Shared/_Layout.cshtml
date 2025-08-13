@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8" />
@@ -195,9 +197,17 @@
             <li><a asp-controller="ProcesosVinculados" asp-action="Index"><i class="bi bi-gear-fill"></i> Anticipos</a></li>
             <li><a asp-controller="ProcesosVinculados" asp-action="Index"><i class="bi bi-envelope-fill"></i> Tiquetes</a></li>
             <li><a asp-controller="ProcesosVinculados" asp-action="Index"><i class="bi bi-briefcase-fill"></i> Legalizaciones</a></li>
-           
-            
-            
+
+            @if (SignInManager.IsSignedIn(User) && User.IsInRole("Admin"))
+            {
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Roles" asp-action="Index">
+                        <i class="bi bi-shield-lock"></i> Gestión Roles
+                    </a>
+                </li>
+            }
+
+
             <!-- Agrega más links según necesidad -->
         </ul>
     </div>
