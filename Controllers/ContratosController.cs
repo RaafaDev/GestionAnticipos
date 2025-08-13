@@ -49,13 +49,24 @@ namespace GestionAnticiposApp.Controllers
             return View();
         }
 
+
+
         // POST: Contratos/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
+
+
         [ValidateAntiForgeryToken]
+
         public async Task<IActionResult> Create([Bind("Id,Codigo,Estado,Servicio,FechaInicio,FechaFin,Empresa,Referencia")] Contratos contratos)
         {
+            var errores = ModelState.Values.SelectMany(v => v.Errors);
+            foreach (var error in errores)
+            {
+                Console.WriteLine(error.ErrorMessage);
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(contratos);
