@@ -16,6 +16,7 @@ namespace GestionAnticiposApp.Models
         public DateTime FechaFin { get; set; }
         public string Empresa { get; set; }
         public string Referencia { get; set; }
+        public ICollection<ProcesosVinculados> ProcesosVinculados { get; set; }
 
 
     }

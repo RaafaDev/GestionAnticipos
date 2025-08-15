@@ -34,7 +34,9 @@ namespace GestionAnticiposApp.Controllers
             }
 
             var contratos = await _context.Contratos
+                .Include(m => m.ProcesosVinculados)
                 .FirstOrDefaultAsync(m => m.Id == id);
+                  
             if (contratos == null)
             {
                 return NotFound();

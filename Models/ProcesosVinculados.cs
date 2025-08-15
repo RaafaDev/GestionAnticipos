@@ -2,6 +2,13 @@
 
 namespace GestionAnticiposApp.Models
 {
+
+    public enum TipoProcesoVinculado
+    {
+        Anticipo = 0,
+        Tiquete = 1,
+        Legalizacion = 2
+    }
     public class ProcesosVinculados
     {
         public int Id { get; set; }
@@ -10,7 +17,7 @@ namespace GestionAnticiposApp.Models
         public string Funcionario { get; set; }
         public DateTime FechaSolicitud { get; set; }
         public string Autorizador { get; set; }
-        public string Tipo { get; set; }
+        public TipoProcesoVinculado Tipo { get; set; }
         public decimal Valor { get; set; }
 
         public int ContratoId { get; set; }

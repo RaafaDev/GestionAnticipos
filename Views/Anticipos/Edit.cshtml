@@ -1,0 +1,51 @@
+﻿@model GestionAnticiposApp.Models.ViewModels.AnticipoVM
+@{
+    ViewData["Title"] = "Editar Anticipo";
+}
+
+<h2>@ViewData["Title"]</h2>
+<hr />
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" name="contratoId" value="@ViewBag.ContratoId" />
+
+    <div class="mb-3">
+        <label asp-for="Codigo" class="form-label"></label>
+        <input asp-for="Codigo" class="form-control" />
+        <span asp-validation-for="Codigo" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Estado" class="form-label"></label>
+        <input asp-for="Estado" class="form-control" />
+        <span asp-validation-for="Estado" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="FechaSolicitud" class="form-label"></label>
+        <input asp-for="FechaSolicitud" class="form-control" type="date" />
+        <span asp-validation-for="FechaSolicitud" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Valor" class="form-label"></label>
+        <input asp-for="Valor" class="form-control" type="number" step="0.01" />
+        <span asp-validation-for="Valor" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Comentarios" class="form-label"></label>
+        <textarea asp-for="Comentarios" class="form-control"></textarea>
+        <span asp-validation-for="Comentarios" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    <a asp-action="Details" asp-controller="Contratos" asp-route-id="@ViewBag.ContratoId" class="btn btn-secondary">Cancelar</a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
