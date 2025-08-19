@@ -16,13 +16,43 @@ namespace GestionAnticiposApp.Controllers
             _context = context;
         }
 
+        public async Task<IActionResult> Index(string? Funcionario, string? Estado, string? Codigo)
+        {
+            var query = _context.ProcesosVinculados
+                .Include(p => p.Contrato) // opcional si quieres traer contratos
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(Funcionario))
+            {
+                query = query.Where(p => p.Funcionario.Contains(Funcionario));
+            }
+
+            if (!string.IsNullOrEmpty(Estado))
+            {
+                query = query.Where(p => p.Estado.Contains(Estado));
+            }
+
+            if (!string.IsNullOrEmpty(Codigo))
+                query = query.Where(p => p.Codigo.Contains(Codigo));
+
+            // Para mantener los valores en el formulario
+            ViewData["Funcionario"] = Funcionario;
+            ViewData["Estado"] = Estado;
+            ViewData["CodigoContra"] = Codigo;
+
+            return View(await query.ToListAsync());
+        }
 
 
-        
+
+
         // ===============================
         // MÉTODOS PRIVADOS DE MAPEADO
         // ===============================
         private ProcesosVinculados MapToEntity(AnticipoVM vm, int contratoId)
+
+
+
         {
             return new ProcesosVinculados
             {
@@ -40,6 +70,11 @@ namespace GestionAnticiposApp.Controllers
 
         private AnticipoVM MapToVM(ProcesosVinculados entity)
         {
+
+
+            ViewData["Funcionario"] = entity.Funcionario;
+            ViewData["CodigoContra"] = entity.Codigo;
+            ViewData["Estado"] = entity.Estado;
             return new AnticipoVM
             {
                 Id = entity.Id,
