@@ -65,6 +65,19 @@ namespace GestionAnticiposApp.Controllers
                 .Include(p => p.Contrato)
                 .FirstOrDefaultAsync(p => p.Id == id && p.Tipo == 0);
 
+            if (entity == null)
+            {
+                _loggerHelper.LogWarning($"El usuario {User.Identity?.Name ?? "Desconocido"} intentó acceder a detalles de un anticipo inexistente (Id: {id}).");
+                return NotFound();
+            }
+
+            _loggerHelper.LogInfo($"El usuario {User.Identity?.Name ?? "Desconocido"} accedió a los detalles del anticipo con Id: {id}.");
+
+            var vm = MapToVM(entity);
+            ViewBag.ContratoId = entity.ContratoId;
+            return View(vm);
+        }
+
 
 
         // ===============================
@@ -195,7 +208,6 @@ namespace GestionAnticiposApp.Controllers
 
             var vm = MapToVM(entity);
             ViewBag.ContratoId = entity.ContratoId;
-            SetTipoViewData();
             return View(vm);
         }
 
@@ -208,7 +220,6 @@ namespace GestionAnticiposApp.Controllers
             if (!ModelState.IsValid)
             {
                 ViewBag.ContratoId = contratoId;
-                SetTipoViewData();
                 _loggerHelper.LogWarning($"El usuario {User.Identity?.Name ?? "Desconocido"} intentó editar un anticipo pero la validación falló (Id: {id}).");
                 return View(vm);
             }
@@ -265,7 +276,6 @@ namespace GestionAnticiposApp.Controllers
 
             var vm = MapToVM(entity);
             ViewBag.ContratoId = entity.ContratoId;
-            SetTipoViewData();
             return View(vm);
         }
 
@@ -289,23 +299,7 @@ namespace GestionAnticiposApp.Controllers
 
             return RedirectToAction("Details", "Contratos", new { id = contratoId });
         }
-          // Anticipos/Delete/5
-        public async Task<IActionResult> Details(int id)
-        {
-            var entity = await _context.ProcesosVinculados
-                .Include(p => p.Contrato)
-                .FirstOrDefaultAsync(p => p.Id == id && p.Tipo == 0);
-
-            if (entity == null) return NotFound();
-
-            var vm = MapToVM(entity);
-
-    
-
-            ViewBag.ContratoId = entity.ContratoId;
-
-            return View(vm);
-        }
+        
 
     }
 }
