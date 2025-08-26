@@ -136,11 +136,8 @@ namespace GestionAnticiposApp.Controllers
 
                         var nuevoDocumento = new Documentos
                         {
-                            Nombre = file.FileName, // nombre original
-                            Tipo = file.ContentType,
                             Archivo = "/uploads/" + fileName, // ruta accesible
-                            FechaCreacion = DateTime.Now,
-                            FechaModificacion = DateTime.Now,
+
                             ProcesoVinculadoId = entity.Id
                         };
 
