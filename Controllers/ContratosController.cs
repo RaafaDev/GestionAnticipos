@@ -20,11 +20,23 @@ namespace GestionAnticiposApp.Controllers
         }
 
         // GET: Contratos
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchCodigo, int pageIndex = 1)
         {
-            return View(await _context.Contratos.ToListAsync());
-        }
+            ViewData["searchCodigo"] = searchCodigo;
+            int pageSize = 4;
 
+            var contratos = from c in _context.Contratos
+                            select c;
+
+            if (!string.IsNullOrEmpty(searchCodigo))
+            {
+                contratos = contratos.Where(c => c.Codigo.Contains(searchCodigo));
+            }
+
+            var paginatedList = await PaginatedList<Contratos>.CreateAsync(contratos.AsNoTracking(), pageIndex, pageSize);
+
+            return View(paginatedList);
+        }
         // GET: Contratos/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -36,7 +48,7 @@ namespace GestionAnticiposApp.Controllers
             var contratos = await _context.Contratos
                 .Include(m => m.ProcesosVinculados)
                 .FirstOrDefaultAsync(m => m.Id == id);
-                  
+
             if (contratos == null)
             {
                 return NotFound();

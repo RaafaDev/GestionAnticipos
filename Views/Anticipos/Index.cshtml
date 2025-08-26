@@ -1,5 +1,4 @@
-﻿@model IEnumerable<GestionAnticiposApp.Models.ProcesosVinculados>
-
+﻿@model GestionAnticiposApp.Models.PaginatedList<GestionAnticiposApp.Models.ProcesosVinculados>
 @{
     ViewData["Title"] = "Inde";
 }
@@ -11,19 +10,19 @@
         <div class="form-group mb-2">
             <datalist id="funcionarioByUser"></datalist>
             <input type="hidden" id="hiddenFuncionarioId" value="defaultId">
-            <input list="funcionarioByUser" autocomplete="off"
-                   name="Funcionario" id="funcionarioByUserName"
-                   value="@ViewData["Funcionario"]"
-                   placeholder="Nombre funcionario"
+            <input list="FechaSolicitudByUser" autocomplete="off"
+                   name="FechaSolicitud" id="FechaSolicitudByUserName"
+                   value="@ViewData["FechaSolicitud"]"
+                   placeholder="Fecha Solicitud"
                    class="form-control form-control-sm regular-text"
-                   style="width: 150px;" />
+                   style="width: 150px;" / type="date">
         </div>
 
         <div class="form-group mx-sm-2 mb-2">
             <label class="sr-only regular-text">Estado</label>
             <input name="Estado"
                    value="@ViewData["Estado"]"
-                   placeholder="Aprovado"
+                   placeholder="Estado"
                    class="form-control form-control-sm regular-text"
                    style="width: 150px;" />
         </div>
@@ -32,7 +31,7 @@
             <label class="sr-only regular-text">Código del contrato</label>
             <input name="Codigo"
                    value="@ViewData["CodigoContra"]"
-                   placeholder="AUD000321"
+                   placeholder="Codigo Contrato"
                    class="form-control form-control-sm regular-text"
                    style="width: 150px;" />
         </div>
@@ -42,7 +41,9 @@
         <div class="mb-1 mx-sm-2">
             <button type="submit" class="btn btn-crowe mb-1 regular-text btn-sm " style="width:130px;height:34px;">Buscar</button>
             <a class="btn btn-secondary mb-1 regular-text btn-sm"
-               href="@Url.Action("Anticipos")" style="width:130px;height:34px">Limpiar filtros</a>
+               asp-controller="Anticipos"
+               asp-action="Index"
+               style="width:130px;height:34px">Limpiar filtros</a>
         </div>
 
 
@@ -62,52 +63,72 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Codigo)
+                @Html.DisplayNameFor(model => model[0].Codigo)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Estado)
+                @Html.DisplayNameFor(model => model[0].Estado)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Funcionario)
+                @Html.DisplayNameFor(model => model[0].Funcionario)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.FechaSolicitud)
+                @Html.DisplayNameFor(model => model[0].FechaSolicitud)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Autorizador)
+                @Html.DisplayNameFor(model => model[0].Autorizador)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Tipo)
+                @Html.DisplayNameFor(model => model[0].Tipo)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Valor)
+                @Html.DisplayNameFor(model => model[0].Valor)
+            </th>
+            <th>
+                Acciones
             </th>
          
             <th></th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var p in Model.Where(p => p.Tipo == 0 || p.Tipo == 0))
+        @foreach (var p in Model.Where(p => p.Tipo == 0))
         {
             <tr>
                 <td>@p.Codigo</td>
-                <td>@p.Tipo</td>
                 <td>@p.Estado</td>
+                <td>@p.Funcionario</td>
                 <td>@p.FechaSolicitud.ToShortDateString()</td>
+                <td>@p.Autorizador</td>
+                <td>@p.Tipo</td>
                 <td>@p.Valor.ToString("C")</td>
                 <td>
-                    @if (p.Tipo == 0)
-                    {
-                        <a asp-controller="Anticipos" asp-action="Edit" asp-route-id="@p.Id" class="btn btn-sm btn-warning">Editar</a>
-                        <a asp-controller="Anticipos" asp-action="Delete" asp-route-id="@p.Id" class="btn btn-sm btn-danger">Eliminar</a>
-                    }
-                    else if (p.Tipo == 0)
-                    {
-                        <a asp-controller="Tiquetes" asp-action="Edit" asp-route-id="@p.Id" class="btn btn-sm btn-warning">Editar</a>
-                        <a asp-controller="Tiquetes" asp-action="Delete" asp-route-id="@p.Id" class="btn btn-sm btn-danger">Eliminar</a>
-                    }
+                    <a asp-controller="Anticipos" asp-action="Edit" asp-route-id="@p.Id" class="btn btn-sm btn-warning">Editar</a>
+                    <a asp-controller="Anticipos" asp-action="Delete" asp-route-id="@p.Id" class="btn btn-sm btn-danger">Eliminar</a>
                 </td>
             </tr>
         }
     </tbody>
 </table>
+<nav aria-label="Paginación">
+    <ul class="pagination">
+        <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+            <a class="page-link" asp-action="Index"
+               asp-route-pageIndex="@(Model.PageIndex - 1)"
+               asp-route-searchCodigo="@ViewData["searchCodigo"]">Anterior</a>
+        </li>
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                <a class="page-link" asp-action="Index"
+                   asp-route-pageIndex="@i"
+                   asp-route-searchCodigo="@ViewData["searchCodigo"]">@i</a>
+            </li>
+        }
+        <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+            <a class="page-link" asp-action="Index"
+               asp-route-pageIndex="@(Model.PageIndex + 1)"
+               asp-route-searchCodigo="@ViewData["searchCodigo"]">Siguiente</a>
+        </li>
+    </ul>
+</nav>
+
