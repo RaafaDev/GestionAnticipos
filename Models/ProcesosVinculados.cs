@@ -14,7 +14,7 @@ namespace GestionAnticiposApp.Models
         public int Id { get; set; }
         public string Codigo { get; set; }
         public string Estado { get; set; }
-        public string Funcionario { get; set; }
+        public string? Funcionario { get; set; }
         public DateTime FechaSolicitud { get; set; }
         public string? Autorizador { get; set; }
         public TipoProcesoVinculado Tipo { get; set; }
@@ -25,6 +25,6 @@ namespace GestionAnticiposApp.Models
 
         public ICollection<Notificaciones> Notificaciones { get; set; }
         public ICollection<Aprobaciones> Aprobaciones { get; set; }
-        public ICollection<Documentos> Documentos { get; set; }
+        public ICollection<Documentos> Documentos { get; set; } = new List<Documentos>();
     }
 }

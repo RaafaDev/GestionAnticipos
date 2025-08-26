@@ -128,7 +128,7 @@ namespace GestionAnticiposApp.Controllers
         // POST: Anticipos/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(AnticipoVM vm, int contratoId)
+        public async Task<IActionResult> Create(AnticipoVM vm, int contratoId, List<IFormFile> Documentos)
         {
 
             var errores = ModelState.Values.SelectMany(v => v.Errors);
@@ -145,11 +145,52 @@ namespace GestionAnticiposApp.Controllers
 
             
             var entity = MapToEntity(vm, contratoId);
+
             _context.ProcesosVinculados.Add(entity);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(); // primero guardamos para tener el Id
+
+            // 📂 Si hay documentos subidos
+            if (Documentos != null && Documentos.Any())
+            {
+                var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+                if (!Directory.Exists(uploadsPath))
+                {
+                    Directory.CreateDirectory(uploadsPath);
+                }
+
+                foreach (var file in Documentos)
+                {
+                    if (file.Length > 0)
+                    {
+                        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                        var filePath = Path.Combine(uploadsPath, fileName);
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream);
+                        }
+
+                        var nuevoDocumento = new Documentos
+                        {
+                            Nombre = file.FileName, // nombre original
+                            Tipo = file.ContentType,
+                            Archivo = "/uploads/" + fileName, // ruta accesible
+                            FechaCreacion = DateTime.Now,
+                            FechaModificacion = DateTime.Now,
+                            ProcesoVinculadoId = entity.Id
+                        };
+
+                        _context.Documentos.Add(nuevoDocumento);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+            }
 
             return RedirectToAction("Details", "Contratos", new { id = contratoId });
         }
+
+
 
         // GET: Anticipos/Edit/5
         public async Task<IActionResult> Edit(int id)
