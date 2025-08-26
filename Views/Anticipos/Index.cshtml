@@ -357,10 +357,6 @@
 
 
 
-
-
-
-
 </div>
 <table class="table">
     <thead>
@@ -407,6 +403,7 @@
                 <td>
                     <a asp-controller="Anticipos" asp-action="Edit" asp-route-id="@p.Id" class="btn btn-sm btn-warning">Editar</a>
                     <a asp-controller="Anticipos" asp-action="Delete" asp-route-id="@p.Id" class="btn btn-sm btn-danger">Eliminar</a>
+                    <a asp-controller="Anticipos" asp-action="Details" asp-route-id="@p.Id" class="btn btn-sm btn-info">Detalles</a>
                 </td>
             </tr>
         }

@@ -65,18 +65,43 @@ namespace GestionAnticiposApp.Controllers
                 .Include(p => p.Contrato)
                 .FirstOrDefaultAsync(p => p.Id == id && p.Tipo == 0);
 
-            if (entity == null)
+
+
+        // ===============================
+        // MÉTODOS PRIVADOS DE MAPEADO
+        // ===============================
+        private ProcesosVinculados MapToEntity(AnticipoVM vm, int contratoId)
+        {
+            return new ProcesosVinculados
             {
-                _loggerHelper.LogWarning($"El usuario {User.Identity?.Name ?? "Desconocido"} intentó acceder a detalles de un anticipo inexistente (Id: {id}).");
-                return NotFound();
-            }
+                Id = vm.Id,
+                Codigo = vm.Codigo,
+                Estado = vm.Estado,
+                FechaSolicitud = vm.FechaSolicitud,
+                Valor = vm.Valor,
+                Tipo = 0,               // fijo
+                ContratoId = contratoId,
+                Funcionario = User.Identity?.Name ?? "Desconocido",
+                Autorizador = ""                 // lo puedes rellenar luego si aplica
+            };
+        }
 
-            _loggerHelper.LogInfo($"El usuario {User.Identity?.Name ?? "Desconocido"} accedió a los detalles del anticipo con Id: {id}.");
-
-            var vm = MapToVM(entity);
-            ViewBag.ContratoId = entity.ContratoId;
-            SetTipoViewData();
-            return View(vm);
+        private AnticipoVM MapToVM(ProcesosVinculados entity)
+        {
+            ViewData["FechaSolicitud"] = entity.FechaSolicitud;
+            ViewData["CodigoContra"] = entity.Codigo;
+            ViewData["Estado"] = entity.Estado;
+            return new AnticipoVM
+            {
+                Id = entity.Id,
+                Codigo = entity.Codigo,
+                Estado = entity.Estado,
+                FechaSolicitud = entity.FechaSolicitud,
+                Valor = entity.Valor,
+                Funcionario = entity.Funcionario, // <-- ASIGNACIÓN CORRECTA
+                Comentarios = "",         
+                PuedeAprobar = false      
+            };
         }
 
         // GET: Anticipos/Create
@@ -264,51 +289,23 @@ namespace GestionAnticiposApp.Controllers
 
             return RedirectToAction("Details", "Contratos", new { id = contratoId });
         }
-
-        // ===============================
-        // MÉTODOS PRIVADOS DE MAPEADO
-        // ===============================
-        private ProcesosVinculados MapToEntity(AnticipoVM vm, int contratoId)
+          // Anticipos/Delete/5
+        public async Task<IActionResult> Details(int id)
         {
-            return new ProcesosVinculados
-            {
-                Id = vm.Id,
-                Codigo = vm.Codigo,
-                Estado = vm.Estado,
-                FechaSolicitud = vm.FechaSolicitud,
-                Valor = vm.Valor,
-                Tipo = 0,               // fijo
-                ContratoId = contratoId,
-                Funcionario = User.Identity?.Name ?? "Desconocido",
-                Autorizador = ""                 // lo puedes rellenar luego si aplica
-            };
+            var entity = await _context.ProcesosVinculados
+                .Include(p => p.Contrato)
+                .FirstOrDefaultAsync(p => p.Id == id && p.Tipo == 0);
+
+            if (entity == null) return NotFound();
+
+            var vm = MapToVM(entity);
+
+    
+
+            ViewBag.ContratoId = entity.ContratoId;
+
+            return View(vm);
         }
 
-        private AnticipoVM MapToVM(ProcesosVinculados entity)
-        {
-            ViewData["FechaSolicitud"] = entity.FechaSolicitud;
-            ViewData["CodigoContra"] = entity.Codigo;
-            ViewData["Estado"] = entity.Estado;
-            return new AnticipoVM
-            {
-                Id = entity.Id,
-                Codigo = entity.Codigo,
-                Estado = entity.Estado,
-                FechaSolicitud = entity.FechaSolicitud,
-                Valor = entity.Valor,
-                Comentarios = "",
-                PuedeAprobar = false
-            };
-        }
-
-        private void SetTipoViewData()
-        {
-            ViewData["Tipo"] = new Dictionary<int, string>
-                    {
-                        { 0, "Anticipo" },
-                        { 1, "Tiquete" },
-                        { 2, "Legalizacion" }
-                    };
-        }
     }
 }
