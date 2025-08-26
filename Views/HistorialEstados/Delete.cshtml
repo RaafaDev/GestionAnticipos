@@ -1,0 +1,37 @@
+﻿@model GestionAnticiposApp.Models.ViewModels.AnticipoVM
+@{
+    ViewData["Title"] = "Eliminar Anticipo";
+}
+
+<h2>@ViewData["Title"]</h2>
+<hr />
+
+<div class="alert alert-warning">
+    <strong>¿Estás seguro que deseas eliminar este anticipo?</strong>
+</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Código</dt>
+    <dd class="col-sm-9">@Model.Codigo</dd>
+
+    <dt class="col-sm-3">Estado</dt>
+    <dd class="col-sm-9">@Model.Estado</dd>
+
+    <dt class="col-sm-3">Fecha Solicitud</dt>
+    <dd class="col-sm-9">@Model.FechaSolicitud.ToShortDateString()</dd>
+
+    <dt class="col-sm-3">Valor</dt>
+    <dd class="col-sm-9">@Model.Valor.ToString("C")</dd>
+
+    <dt class="col-sm-3">Comentarios</dt>
+    <dd class="col-sm-9">@Model.Comentarios</dd>
+</dl>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" name="contratoId" value="@ViewBag.ContratoId" />
+
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+    <a asp-action="Details" asp-controller="Contratos" asp-route-id="@ViewBag.ContratoId" class="btn btn-secondary">Cancelar</a>
+</form>
+

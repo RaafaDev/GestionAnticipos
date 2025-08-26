@@ -197,6 +197,8 @@
             <li><a asp-controller="Anticipos" asp-action="Index"><i class="bi bi-gear-fill"></i> Anticipos</a></li>
             <li><a asp-controller="ProcesosVinculados" asp-action="Index"><i class="bi bi-envelope-fill"></i> Tiquetes</a></li>
             <li><a asp-controller="ProcesosVinculados" asp-action="Index"><i class="bi bi-briefcase-fill"></i> Legalizaciones</a></li>
+            <li><a asp-controller="HistorialEstados" asp-action="Index"><i class="bi bi-briefcase-fill"></i> Historial Estados</a></li>
+
 
             @if (SignInManager.IsSignedIn(User) && User.IsInRole("Admin"))
             {

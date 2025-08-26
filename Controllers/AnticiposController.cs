@@ -4,18 +4,22 @@ using GestionAnticiposApp.Models;
 using GestionAnticiposApp.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using GestionAnticipos.Models;
 
 namespace GestionAnticiposApp.Controllers
 {
     public class AnticiposController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly LoggerHelper _loggerHelper;
 
-        public AnticiposController(ApplicationDbContext context)
+        public AnticiposController(ApplicationDbContext context, LoggerHelper loggerHelper)
         {
             _context = context;
+            _loggerHelper = loggerHelper;
         }
 
+        // GET: Anticipos
         public async Task<IActionResult> Index(string? FechaSolicitud, string? Estado, string? Codigo, int pageIndex = 1)
         {
             int pageSize = 2;
@@ -48,19 +52,175 @@ namespace GestionAnticiposApp.Controllers
 
             var paginatedList = await PaginatedList<ProcesosVinculados>.CreateAsync(query.AsNoTracking(), pageIndex, pageSize);
 
+            _loggerHelper.LogInfo($"El usuario {User.Identity?.Name ?? "Desconocido"} accedió al listado de anticipos.");
+
             return View(paginatedList);
         }
 
+        // GET: Anticipos/Details/5
+        public async Task<IActionResult> Details(int id)
+        {
+            var entity = await _context.ProcesosVinculados
+                .Include(p => p.Contrato)
+                .FirstOrDefaultAsync(p => p.Id == id && p.Tipo == 0);
 
+            if (entity == null)
+            {
+                _loggerHelper.LogWarning($"El usuario {User.Identity?.Name ?? "Desconocido"} intentó acceder a detalles de un anticipo inexistente (Id: {id}).");
+                return NotFound();
+            }
 
+            _loggerHelper.LogInfo($"El usuario {User.Identity?.Name ?? "Desconocido"} accedió a los detalles del anticipo con Id: {id}.");
+
+            var vm = MapToVM(entity);
+            ViewBag.ContratoId = entity.ContratoId;
+            SetTipoViewData();
+            return View(vm);
+        }
+
+        // GET: Anticipos/Create
+        public IActionResult Create(int contratoId)
+        {
+            var vm = new AnticipoVM();
+            ViewBag.ContratoId = contratoId;
+            _loggerHelper.LogInfo($"El usuario {User.Identity?.Name ?? "Desconocido"} accedió a la vista de creación de anticipo para el contrato {contratoId}.");
+            return View(vm);
+        }
+
+        // POST: Anticipos/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(AnticipoVM vm, int contratoId)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.ContratoId = contratoId;
+                _loggerHelper.LogWarning($"El usuario {User.Identity?.Name ?? "Desconocido"} intentó crear un anticipo pero la validación falló para el contrato {contratoId}.");
+                return View(vm);
+            }
+
+            var entity = MapToEntity(vm, contratoId);
+            _context.ProcesosVinculados.Add(entity);
+            await _context.SaveChangesAsync();
+
+            _loggerHelper.LogInfo($"El usuario {User.Identity?.Name ?? "Desconocido"} creó un anticipo con código {entity.Codigo} para el contrato {contratoId}.");
+
+            return RedirectToAction("Details", "Contratos", new { id = contratoId });
+        }
+
+        // GET: Anticipos/Edit/5
+        public async Task<IActionResult> Edit(int id)
+        {
+            var entity = await _context.ProcesosVinculados
+                .FirstOrDefaultAsync(p => p.Id == id && p.Tipo == 0);
+            if (entity == null)
+            {
+                _loggerHelper.LogWarning($"El usuario {User.Identity?.Name ?? "Desconocido"} intentó editar un anticipo inexistente (Id: {id}).");
+                return NotFound();
+            }
+
+            _loggerHelper.LogInfo($"El usuario {User.Identity?.Name ?? "Desconocido"} accedió a la edición del anticipo con Id: {id}.");
+
+            var vm = MapToVM(entity);
+            ViewBag.ContratoId = entity.ContratoId;
+            SetTipoViewData();
+            return View(vm);
+        }
+
+        // POST: Anticipos/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, AnticipoVM vm, int contratoId)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.ContratoId = contratoId;
+                SetTipoViewData();
+                _loggerHelper.LogWarning($"El usuario {User.Identity?.Name ?? "Desconocido"} intentó editar un anticipo pero la validación falló (Id: {id}).");
+                return View(vm);
+            }
+
+            var entity = await _context.ProcesosVinculados
+                .FirstOrDefaultAsync(p => p.Id == id && p.Tipo == 0);
+            if (entity == null)
+            {
+                _loggerHelper.LogWarning($"El usuario {User.Identity?.Name ?? "Desconocido"} intentó editar un anticipo inexistente (Id: {id}).");
+                return NotFound();
+            }
+
+            // Guardar valores anteriores para el log
+            var original = new ProcesosVinculados
+            {
+                Id = entity.Id,
+                Codigo = entity.Codigo,
+                Estado = entity.Estado,
+                FechaSolicitud = entity.FechaSolicitud,
+                Valor = entity.Valor,
+                Funcionario = entity.Funcionario,
+                Autorizador = entity.Autorizador,
+                Tipo = entity.Tipo,
+                ContratoId = entity.ContratoId
+            };
+
+            // Actualizar datos mapeados
+            entity.Codigo = vm.Codigo;
+            entity.Estado = vm.Estado;
+            entity.FechaSolicitud = vm.FechaSolicitud;
+            entity.Valor = vm.Valor;
+
+            _context.Update(entity);
+            await _context.SaveChangesAsync();
+
+            // Log de cambios automáticos
+            _loggerHelper.LogEntityChanges(original, entity);
+
+            return RedirectToAction("Details", "Contratos", new { id = contratoId });
+        }
+
+        // GET: Anticipos/Delete/5
+        public async Task<IActionResult> Delete(int id)
+        {
+            var entity = await _context.ProcesosVinculados
+                .FirstOrDefaultAsync(p => p.Id == id && p.Tipo == 0);
+            if (entity == null)
+            {
+                _loggerHelper.LogWarning($"El usuario {User.Identity?.Name ?? "Desconocido"} intentó eliminar un anticipo inexistente (Id: {id}).");
+                return NotFound();
+            }
+
+            _loggerHelper.LogInfo($"El usuario {User.Identity?.Name ?? "Desconocido"} accedió a la vista de eliminación del anticipo con Id: {id}.");
+
+            var vm = MapToVM(entity);
+            ViewBag.ContratoId = entity.ContratoId;
+            SetTipoViewData();
+            return View(vm);
+        }
+
+        // POST: Anticipos/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id, int contratoId)
+        {
+            var entity = await _context.ProcesosVinculados
+                .FirstOrDefaultAsync(p => p.Id == id && p.Tipo == 0);
+            if (entity == null)
+            {
+                _loggerHelper.LogWarning($"El usuario {User.Identity?.Name ?? "Desconocido"} intentó eliminar un anticipo inexistente (Id: {id}).");
+                return NotFound();
+            }
+
+            _context.ProcesosVinculados.Remove(entity);
+            await _context.SaveChangesAsync();
+
+            _loggerHelper.LogInfo($"El usuario {User.Identity?.Name ?? "Desconocido"} eliminó el anticipo con Id: {id} para el contrato {contratoId}.");
+
+            return RedirectToAction("Details", "Contratos", new { id = contratoId });
+        }
 
         // ===============================
         // MÉTODOS PRIVADOS DE MAPEADO
         // ===============================
         private ProcesosVinculados MapToEntity(AnticipoVM vm, int contratoId)
-
-
-
         {
             return new ProcesosVinculados
             {
@@ -78,8 +238,6 @@ namespace GestionAnticiposApp.Controllers
 
         private AnticipoVM MapToVM(ProcesosVinculados entity)
         {
-
-
             ViewData["FechaSolicitud"] = entity.FechaSolicitud;
             ViewData["CodigoContra"] = entity.Codigo;
             ViewData["Estado"] = entity.Estado;
@@ -90,125 +248,19 @@ namespace GestionAnticiposApp.Controllers
                 Estado = entity.Estado,
                 FechaSolicitud = entity.FechaSolicitud,
                 Valor = entity.Valor,
-
-                // Estos campos son solo de la vista
-                Comentarios = "",         // si vienen de otro lado, agrégalos
-                PuedeAprobar = false      // puedes calcularlo según la lógica de negocio
+                Comentarios = "",
+                PuedeAprobar = false
             };
         }
 
         private void SetTipoViewData()
         {
             ViewData["Tipo"] = new Dictionary<int, string>
-            {
-                { 0, "Anticipo" },
-                { 1, "Tiquete" },
-                { 2, "Legalizacion" }
-            };
-        }
-
-        // ===============================
-        // CRUD EJEMPLO
-        // ===============================
-
-        // GET: Anticipos/Create
-        public IActionResult Create(int contratoId)
-        {
-            var vm = new AnticipoVM();
-            ViewBag.ContratoId = contratoId; // para pasar al formulario
-            return View(vm);
-        }
-
-
-
-    // POST: Anticipos/Create
-    [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(AnticipoVM vm, int contratoId)
-        {
-            if (!ModelState.IsValid)
-            {
-                ViewBag.ContratoId = contratoId;
-                return View(vm);
-            }
-
-            var entity = MapToEntity(vm, contratoId);
-            _context.ProcesosVinculados.Add(entity);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction("Details", "Contratos", new { id = contratoId });
-        }
-
-        // GET: Anticipos/Edit/5
-        public async Task<IActionResult> Edit(int id)
-        {
-            var entity = await _context.ProcesosVinculados
-                .FirstOrDefaultAsync(p => p.Id == id && p.Tipo == 0);
-            if (entity == null) return NotFound();
-
-            var vm = MapToVM(entity);
-            ViewBag.ContratoId = entity.ContratoId;
-            SetTipoViewData();
-
-
-            return View(vm);
-        }
-
-        // POST: Anticipos/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, AnticipoVM vm, int contratoId)
-        {
-            if (!ModelState.IsValid)
-            {
-                ViewBag.ContratoId = contratoId;
-                SetTipoViewData();
-                return View(vm);
-            }
-
-            var entity = await _context.ProcesosVinculados
-                .FirstOrDefaultAsync(p => p.Id == id && p.Tipo == 0);
-            if (entity == null) return NotFound();
-      
-
-            // actualizar datos mapeados
-            entity.Codigo = vm.Codigo;
-            entity.Estado = vm.Estado;
-            entity.FechaSolicitud = vm.FechaSolicitud;
-            entity.Valor = vm.Valor;
-
-            _context.Update(entity);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction("Details", "Contratos", new { id = contratoId });
-        }
-
-        // GET: Anticipos/Delete/5
-        public async Task<IActionResult> Delete(int id)
-        {
-            var entity = await _context.ProcesosVinculados
-                .FirstOrDefaultAsync(p => p.Id == id && p.Tipo == 0);
-            if (entity == null) return NotFound();
-
-            var vm = MapToVM(entity);
-            ViewBag.ContratoId = entity.ContratoId;
-            SetTipoViewData();
-            return View(vm);
-        }
-
-        // POST: Anticipos/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id, int contratoId)
-        {
-            var entity = await _context.ProcesosVinculados
-                .FirstOrDefaultAsync(p => p.Id == id && p.Tipo == 0);
-            if (entity == null) return NotFound();
-
-            _context.ProcesosVinculados.Remove(entity);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction("Details", "Contratos", new { id = contratoId });
+                    {
+                        { 0, "Anticipo" },
+                        { 1, "Tiquete" },
+                        { 2, "Legalizacion" }
+                    };
         }
     }
 }

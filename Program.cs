@@ -2,6 +2,8 @@ using GestionAnticipos.Data;
 using GestionAnticiposApp.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using GestionAnticipos.Models;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +23,10 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/Identity/Account/Login"; 
 });
 
+
+// Add this line to register IHttpContextAccessor
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<LoggerHelper>();
 
 var app = builder.Build();
 
@@ -86,5 +92,6 @@ app.Run();
 //        }
 //    }
 //}
+
 
 
