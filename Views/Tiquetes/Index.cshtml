@@ -1,0 +1,33 @@
+﻿@model IEnumerable<GestionAnticiposApp.ViewModels.TiquetesVM>
+
+<h2> Tiquetes</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Anticipo</th>
+            <th>Contrato</th>
+            <th>Concepto</th>
+            <th>Valor</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.AnticipoCodigo</td>
+                <td>@item.ContratoCodigo</td>
+                <td>@item.Concepto</td>
+                <td>@item.Valor</td>
+                <td>@item.Fecha.ToShortDateString()</td>
+                <td>@item.Estado</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id">Detalles</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<a asp-action="Create" class="btn btn-primary">Nuevo Tiquete</a>
