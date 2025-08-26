@@ -2,6 +2,7 @@
 using GestionAnticiposApp.Data;
 using GestionAnticiposApp.Models;
 using GestionAnticiposApp.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -114,24 +115,35 @@ namespace GestionAnticiposApp.Controllers
         // GET: Anticipos/Create
         public IActionResult Create(int contratoId)
         {
-            var vm = new AnticipoVM();
-            ViewBag.ContratoId = contratoId; // para pasar al formulario
+            var vm = new AnticipoVM
+            {
+                Estado = "Pendiente"
+            };
+            ViewBag.ContratoId = contratoId;
             return View(vm);
         }
 
 
 
-    // POST: Anticipos/Create
-    [HttpPost]
+        // POST: Anticipos/Create
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(AnticipoVM vm, int contratoId)
         {
+
+            var errores = ModelState.Values.SelectMany(v => v.Errors);
+            foreach (var error in errores)
+            {
+                Console.WriteLine(error.ErrorMessage);
+            }
+
             if (!ModelState.IsValid)
             {
                 ViewBag.ContratoId = contratoId;
                 return View(vm);
             }
 
+            
             var entity = MapToEntity(vm, contratoId);
             _context.ProcesosVinculados.Add(entity);
             await _context.SaveChangesAsync();
@@ -157,6 +169,7 @@ namespace GestionAnticiposApp.Controllers
         // POST: Anticipos/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Aprobador, Administrador")]
         public async Task<IActionResult> Edit(int id, AnticipoVM vm, int contratoId)
         {
             if (!ModelState.IsValid)

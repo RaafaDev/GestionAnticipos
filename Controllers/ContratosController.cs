@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using GestionAnticipos.Data;
+using GestionAnticiposApp.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using GestionAnticipos.Data;
-using GestionAnticiposApp.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace GestionAnticiposApp.Controllers
 {
@@ -91,6 +92,9 @@ namespace GestionAnticiposApp.Controllers
         }
 
         // GET: Contratos/Edit/5
+
+        [Authorize(Roles = "Aprobador, Administrador")]
+
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)

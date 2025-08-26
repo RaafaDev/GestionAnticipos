@@ -16,11 +16,24 @@
         <span asp-validation-for="Codigo" class="text-danger"></span>
     </div>
 
-    <div class="mb-3">
-        <label asp-for="Estado" class="form-label"></label>
-        <input asp-for="Estado" class="form-control" />
-        <span asp-validation-for="Estado" class="text-danger"></span>
-    </div>
+    @using Microsoft.AspNetCore.Identity
+
+    @if (User.IsInRole("Aprobador"))
+    {
+        <div class="mb-3">
+            <label asp-for="Estado" class="form-label"></label>
+            <select asp-for="Estado" class="form-control">
+                <option value="Pendiente">Pendiente</option>
+                <option value="Aprobado">Aprobado</option>
+                <option value="Rechazado">Rechazado</option>
+            </select>
+            <span asp-validation-for="Estado" class="text-danger"></span>
+        </div>
+    }
+    else
+    {
+        <input type="hidden" asp-for="Estado" />
+    }
 
     <div class="mb-3">
         <label asp-for="FechaSolicitud" class="form-label"></label>
