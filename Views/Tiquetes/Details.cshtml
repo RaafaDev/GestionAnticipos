@@ -1,0 +1,18 @@
+﻿@model GestionAnticiposApp.ViewModels.TiquetesVM
+
+<h2>Detalles del Tiquete</h2>
+
+<p><b>Anticipo:</b> @Model.AnticipoCodigo</p>
+<p><b>Contrato:</b> @Model.ContratoCodigo</p>
+<p><b>Concepto:</b> @Model.Concepto</p>
+<p><b>Valor:</b> @Model.Valor</p>
+<p><b>Fecha:</b> @Model.Fecha.ToShortDateString()</p>
+<p><b>Estado:</b> @Model.Estado</p>
+
+<h4>Documentos</h4>
+<ul>
+    @foreach (var doc in Model.Documentos)
+    {
+        <li><a href="@doc" target="_blank">@doc</a></li>
+    }
+</ul>

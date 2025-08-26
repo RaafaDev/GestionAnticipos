@@ -314,49 +314,49 @@
     <h1 class="page-title">Anticipos</h1>
 
     <div class="filtros-section">
-        <h5 class="filtros-title">Filtros de búsqueda</h5>
-        <form asp-controller="Anticipos" asp-action="Index" method="get" class="filtros-horizontal"/>
-            <datalist id="funcionarioByUser"></datalist>
-            <input type="hidden" id="hiddenFuncionarioId" value="defaultId">
-            <input list="FechaSolicitudByUser" autocomplete="off"
-                   name="FechaSolicitud" id="FechaSolicitudByUserName"
-                   value="@ViewData["FechaSolicitud"]"
-                   placeholder="Fecha Solicitud"
-                   class="form-control form-control-sm regular-text"
-                   style="width: 150px;" / type="date">
-        </div>
-
-        <div class="form-group mx-sm-2 mb-2">
-            <label class="sr-only regular-text">Estado</label>
-            <input name="Estado"
-                   value="@ViewData["Estado"]"
-                   placeholder="Estado"
-                   class="form-control form-control-sm regular-text"
-                   style="width: 150px;" />
-        </div>
-
-        <div class="form-group mx-sm-2 mb-2">
-            <label class="sr-only regular-text">Código del contrato</label>
-            <input name="Codigo"
-                   value="@ViewData["CodigoContra"]"
-                   placeholder="Codigo Contrato"
-                   class="form-control form-control-sm regular-text"
-                   style="width: 150px;" />
-        </div>
-
        
+        <form asp-controller="Anticipos" asp-action="Index" method="get" class="filtros-horizontal"/>
 
-        <div class="mb-1 mx-sm-2">
-            <button type="submit" class="btn btn-crowe mb-1 regular-text btn-sm " style="width:130px;height:34px;">Buscar</button>
-            <a class="btn btn-secondary mb-1 regular-text btn-sm"
-               asp-controller="Anticipos"
-               asp-action="Index"
-               style="width:130px;height:34px">Limpiar filtros</a>
-        </div>
+        <datalist id="funcionarioByUser"></datalist>
+        <input type="hidden" id="hiddenFuncionarioId" value="defaultId">
+        <input list="FechaSolicitudByUser" autocomplete="off"
+               name="FechaSolicitud" id="FechaSolicitudByUserName"
+               value="@ViewData["FechaSolicitud"]"
+               placeholder="Fecha Solicitud"
+               class="form-control form-control-sm regular-text"
+               style="width: 150px;" / type="date">
+</div>
+
+<div class="form-group mx-sm-2 mb-2">
+    <label class="sr-only regular-text">Estado</label>
+    <input name="Estado"
+           value="@ViewData["Estado"]"
+           placeholder="Estado"
+           class="form-control form-control-sm regular-text"
+           style="width: 150px;" />
+</div>
+
+<div class="form-group mx-sm-2 mb-2">
+    <label class="sr-only regular-text">Código del contrato</label>
+    <input name="Codigo"
+           value="@ViewData["CodigoContra"]"
+           placeholder="Codigo Contrato"
+           class="form-control form-control-sm regular-text"
+           style="width: 150px;" />
+</div>
 
 
 
-
+<div class="mb-1 mx-sm-2">
+    <button type="submit" class="btn btn-crowe mb-1 regular-text btn-sm " style="width:130px;height:34px;">Buscar</button>
+    <a class="btn btn-secondary mb-1 regular-text btn-sm"
+       asp-controller="Anticipos"
+       asp-action="Index"
+       style="width:130px;height:34px">Limpiar filtros</a>
+</div>
+       
+ 
+    
 </div>
 <table class="table">
     <thead>
