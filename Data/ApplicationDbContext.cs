@@ -17,6 +17,6 @@ namespace GestionAnticipos.Data
         public DbSet<ProcesosVinculados> ProcesosVinculados { get; set; }
         public DbSet<Notificaciones> Notificaciones { get; set; }
         public DbSet<Documentos> Documentos { get; set; }
-        
+        public DbSet<Log> Logs { get; set; }
     }
 }
