@@ -60,18 +60,95 @@
             text-decoration: none;
         }
 
-        /* BOTÓN LOGIN */
-        .login-btn {
-            color: var(--amarillo);
-            font-size: 1.6rem;
-            text-decoration: none;
+        /* Selector de usuario */
+        .user-menu {
+            position: relative;
+            display: inline-block;
+        }
+
+        .user-toggle {
             display: flex;
             align-items: center;
-            transition: color 0.3s;
+            color: var(--amarillo);
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: all 0.3s;
         }
-        .login-btn:hover {
+
+            .user-toggle:hover {
+                background-color: rgba(255, 215, 0, 0.1);
+            }
+
+            .user-toggle i {
+                font-size: 1.6rem;
+                margin-right: 8px;
+            }
+
+            .user-toggle span {
+                font-size: 1rem;
+            }
+
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: var(--blanco);
+            min-width: 200px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            border-radius: 4px;
+            z-index: 1001;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+            .user-dropdown.active {
+                display: block;
+            }
+
+        .user-info {
+            padding: 15px;
+            background-color: var(--azul-oscuro);
             color: var(--blanco);
+            border-bottom: 2px solid var(--amarillo);
         }
+
+        .user-dropdown a {
+            display: block;
+            padding: 12px 15px;
+            color: var(--azul-oscuro);
+            text-decoration: none;
+            transition: all 0.3s;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+            .user-dropdown a:last-child {
+                border-bottom: none;
+            }
+
+            .user-dropdown a:hover {
+                background-color: var(--amarillo);
+                color: var(--azul-oscuro);
+            }
+
+        .user-dropdown form button {
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            padding: 12px 15px;
+            color: var(--azul-oscuro);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 1rem;
+        }
+
+            .user-dropdown form button:hover {
+                background-color: var(--amarillo);
+                color: var(--azul-oscuro);
+            }
 
         /* SIDEBAR */
         .sidebar {
@@ -86,33 +163,38 @@
             z-index: 999;
             padding-top: 20px;
         }
-        .sidebar.active {
-            left: 0;
-        }
-        .sidebar ul {
-            list-style: none;
-            padding: 0;
-        }
-        .sidebar ul li a {
-            display: flex;
-            align-items: center;
-            padding: 14px 20px;
-            font-size: 1rem;
-            color: var(--blanco);
-            text-decoration: none;
-            transition: all 0.3s;
-            border-radius: 6px;
-        }
-        .sidebar ul li a i {
-            margin-right: 12px;
-            font-size: 1.2rem;
-        }
-        .sidebar ul li a:hover {
-            background: var(--amarillo);
-            color: var(--azul-oscuro);
-            box-shadow: 0 0 10px rgba(255,215,0,0.6);
-            transform: translateX(5px);
-        }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .sidebar ul {
+                list-style: none;
+                padding: 0;
+            }
+
+                .sidebar ul li a {
+                    display: flex;
+                    align-items: center;
+                    padding: 14px 20px;
+                    font-size: 1rem;
+                    color: var(--blanco);
+                    text-decoration: none;
+                    transition: all 0.3s;
+                    border-radius: 6px;
+                }
+
+                    .sidebar ul li a i {
+                        margin-right: 12px;
+                        font-size: 1.2rem;
+                    }
+
+                    .sidebar ul li a:hover {
+                        background: var(--amarillo);
+                        color: var(--azul-oscuro);
+                        box-shadow: 0 0 10px rgba(255,215,0,0.6);
+                        transform: translateX(5px);
+                    }
 
         /* CONTENIDO PRINCIPAL */
         .main-content {
@@ -128,17 +210,19 @@
             max-width: 1000px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
-        .main-content h1 {
-            font-size: 2.4rem;
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
-        .main-content p {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            max-width: 650px;
-            margin: 0 auto 25px;
-        }
+
+            .main-content h1 {
+                font-size: 2.4rem;
+                margin-bottom: 15px;
+                font-weight: bold;
+            }
+
+            .main-content p {
+                font-size: 1.1rem;
+                line-height: 1.6;
+                max-width: 650px;
+                margin: 0 auto 25px;
+            }
 
         .btn-custom {
             background: var(--amarillo);
@@ -148,10 +232,11 @@
             border-radius: 6px;
             transition: all 0.3s;
         }
-        .btn-custom:hover {
-            background: var(--azul-oscuro);
-            color: var(--blanco);
-        }
+
+            .btn-custom:hover {
+                background: var(--azul-oscuro);
+                color: var(--blanco);
+            }
 
         /* FOOTER */
         footer {
@@ -163,13 +248,15 @@
             font-size: 0.9rem;
             font-weight: bold;
         }
-        footer a {
-            color: var(--azul-oscuro);
-            text-decoration: none;
-        }
-        footer a:hover {
-            text-decoration: underline;
-        }
+
+            footer a {
+                color: var(--azul-oscuro);
+                text-decoration: none;
+            }
+
+                footer a:hover {
+                    text-decoration: underline;
+                }
     </style>
 </head>
 <body>
@@ -182,9 +269,35 @@
             GestionAnticiposApp
         </a>
 
-        <!-- Sustituimos por _LoginPartial -->
-        <div>
-            <partial name="_LoginPartial" />
+        <!-- Selector de usuario personalizado -->
+        <div class="user-menu">
+            @if (SignInManager.IsSignedIn(User))
+            {
+                <div class="user-toggle" id="userToggle">
+                    <i class="bi bi-person-circle"></i>
+                    <span>@User.Identity?.Name</span>
+                </div>
+                <div class="user-dropdown" id="userDropdown">
+                    <div class="user-info">
+                        <strong>@User.Identity?.Name</strong>
+                    </div>
+                    <a asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
+                        <i class="bi bi-gear-fill"></i> Mi Cuenta
+                    </a>
+                    <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                        <button type="submit">
+                            <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                        </button>
+                    </form>
+                </div>
+            }
+            else
+            {
+                <a class="user-toggle" asp-area="Identity" asp-page="/Account/Login">
+                    <i class="bi bi-person-circle"></i>
+                    <span>Iniciar Sesión</span>
+                </a>
+            }
         </div>
     </div>
 
@@ -206,9 +319,6 @@
                     </a>
                 </li>
             }
-
-
-            <!-- Agrega más links según necesidad -->
         </ul>
     </div>
 
@@ -237,6 +347,24 @@
             link.addEventListener('click', () => {
                 document.getElementById('sidebar').classList.remove('active');
             });
+        });
+
+        // Toggle del menú de usuario
+        const userToggle = document.getElementById('userToggle');
+        if (userToggle) {
+            userToggle.addEventListener('click', function () {
+                document.getElementById('userDropdown').classList.toggle('active');
+            });
+        }
+
+        // Cerrar menú de usuario al hacer clic fuera de él
+        document.addEventListener('click', function(event) {
+            const userMenu = document.querySelector('.user-menu');
+            const userDropdown = document.getElementById('userDropdown');
+            if (userDropdown && userDropdown.classList.contains('active') &&
+                !userMenu.contains(event.target)) {
+                userDropdown.classList.remove('active');
+            }
         });
     </script>
     @await RenderSectionAsync("Scripts", required: false)

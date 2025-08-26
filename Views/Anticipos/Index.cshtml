@@ -1,113 +1,399 @@
 ﻿@model IEnumerable<GestionAnticiposApp.Models.ProcesosVinculados>
 
 @{
-    ViewData["Title"] = "Inde";
+    ViewData["Title"] = "Anticipos";
 }
 
-<h1>Anticipos</h1>
+<style>
+    :root {
+        --azul-oscuro: #0C1E5B;
+        --azul-medio: #1a3bb3;
+        --azul-claro: #f0f4ff;
+        --amarillo: #FFD700;
+        --blanco: #ffffff;
+        --gris-claro: #f8f9fa;
+        --gris-medio: #e9ecef;
+        --verde: #28a745;
+        --rojo: #dc3545;
+    }
 
-<div class="col-md-12" style="padding-left: 0px !important">
-    <form asp-controller="Anticipos" asp-action="Index" method="get" class="form-inline">
-        <div class="form-group mb-2">
+    body {
+        background-color: var(--azul-claro);
+        padding: 20px;
+    }
+
+    .anticipos-container {
+        background: linear-gradient(135deg, var(--blanco) 0%, var(--azul-claro) 100%);
+        border-radius: 16px;
+        box-shadow: 0 8px 30px rgba(12, 30, 91, 0.2);
+        padding: 30px;
+        margin-bottom: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .anticipos-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: linear-gradient(90deg, var(--amarillo), var(--azul-oscuro));
+        border-radius: 8px 8px 0 0;
+    }
+
+    .page-title {
+        color: var(--azul-oscuro);
+        font-weight: bold;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid var(--amarillo);
+        font-size: 2rem;
+        text-align: center;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .filtros-section {
+        background: linear-gradient(135deg, var(--azul-oscuro) 0%, var(--azul-medio) 100%);
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(12, 30, 91, 0.3);
+        color: var(--blanco);
+    }
+
+    .filtros-title {
+        color: var(--amarillo);
+        font-size: 1.3rem;
+        margin-bottom: 18px;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .filtros-horizontal {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .filtro-input {
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 8px;
+        padding: 10px 15px;
+        font-size: 1rem;
+        min-width: 200px;
+        height: 45px;
+        background-color: rgba(255, 255, 255, 0.15);
+        color: var(--blanco);
+        transition: all 0.3s;
+    }
+
+    .filtro-input::placeholder {
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .filtro-input:focus {
+        border-color: var(--amarillo);
+        background-color: rgba(255, 255, 255, 0.25);
+        box-shadow: 0 0 0 0.3rem rgba(255, 215, 0, 0.2);
+        outline: none;
+        color: var(--blanco);
+    }
+
+    .btn-buscar {
+        background-color: var(--amarillo);
+        color: var(--azul-oscuro);
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 600;
+        height: 45px;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .btn-buscar:hover {
+        background-color: #e6c300;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    }
+
+    .btn-limpiar {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: var(--blanco);
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 600;
+        height: 45px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.3s;
+    }
+
+    .btn-limpiar:hover {
+        background-color: rgba(255, 255, 255, 0.3);
+        color: var(--blanco);
+        text-decoration: none;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .btn-crear {
+        background: linear-gradient(135deg, var(--amarillo) 0%, #e6c300 100%);
+        color: var(--azul-oscuro);
+        border: none;
+        border-radius: 8px;
+        padding: 12px 25px;
+        font-weight: 700;
+        margin-top: 25px;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        cursor: pointer;
+        text-decoration: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .btn-crear:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+        color: var(--azul-oscuro);
+        text-decoration: none;
+    }
+
+    .btn-crear i {
+        margin-right: 10px;
+        font-size: 1.2rem;
+    }
+
+    .table-container {
+        overflow-x: auto;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(12, 30, 91, 0.15);
+        margin-bottom: 25px;
+        background-color: var(--blanco);
+    }
+
+    .custom-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background-color: var(--blanco);
+    }
+
+    .custom-table thead {
+        background: linear-gradient(135deg, var(--azul-oscuro) 0%, var(--azul-medio) 100%);
+        color: var(--blanco);
+    }
+
+    .custom-table th {
+        padding: 16px 14px;
+        text-align: left;
+        font-weight: 600;
+        border-bottom: 3px solid var(--amarillo);
+        font-size: 1rem;
+    }
+
+    .custom-table td {
+        padding: 14px;
+        border-bottom: 1px solid #e0e0e0;
+        vertical-align: middle;
+        font-size: 0.95rem;
+    }
+
+    .custom-table tbody tr {
+        transition: background-color 0.2s;
+    }
+
+    .custom-table tbody tr:hover {
+        background-color: rgba(12, 30, 91, 0.05);
+    }
+
+    .estado-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .estado-aprobado {
+        background-color: rgba(40, 167, 69, 0.15);
+        color: var(--verde);
+        border: 1px solid rgba(40, 167, 69, 0.3);
+    }
+
+    .estado-cerrado {
+        background-color: rgba(108, 117, 125, 0.15);
+        color: #6c757d;
+        border: 1px solid rgba(108, 117, 125, 0.3);
+    }
+
+    .btn-action {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+        border-radius: 6px;
+        margin-right: 8px;
+        text-decoration: none;
+        display: inline-block;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .btn-editar {
+        background-color: rgba(255, 215, 0, 0.15);
+        color: var(--azul-oscuro);
+        border: 1px solid rgba(255, 215, 0, 0.4);
+    }
+
+    .btn-editar:hover {
+        background-color: var(--amarillo);
+        color: var(--azul-oscuro);
+        transform: translateY(-2px);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .btn-eliminar {
+        background-color: rgba(220, 53, 69, 0.15);
+        color: var(--rojo);
+        border: 1px solid rgba(220, 53, 69, 0.4);
+    }
+
+    .btn-eliminar:hover {
+        background-color: var(--rojo);
+        color: var(--blanco);
+        transform: translateY(-2px);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .valor-cell {
+        font-weight: 700;
+        color: var(--azul-oscuro);
+        font-size: 1.05rem;
+    }
+
+    .button-container {
+        text-align: center;
+        margin-top: 25px;
+    }
+
+    @@media (max-width: 992px) {
+        body {
+            padding: 10px;
+        }
+        
+        .filtros-horizontal {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .filtro-input {
+            width: 100%;
+            min-width: auto;
+        }
+        
+        .btn-buscar, .btn-limpiar {
+            width: 100%;
+            margin-bottom: 10px;
+            justify-content: center;
+        }
+        
+        .anticipos-container {
+            padding: 20px;
+        }
+    }
+</style>
+
+<div class="anticipos-container">
+    <h1 class="page-title">Anticipos</h1>
+
+    <div class="filtros-section">
+        <h5 class="filtros-title">Filtros de búsqueda</h5>
+        <form asp-controller="Anticipos" asp-action="Index" method="get" class="filtros-horizontal">
             <datalist id="funcionarioByUser"></datalist>
             <input type="hidden" id="hiddenFuncionarioId" value="defaultId">
             <input list="funcionarioByUser" autocomplete="off"
                    name="Funcionario" id="funcionarioByUserName"
                    value="@ViewData["Funcionario"]"
                    placeholder="Nombre funcionario"
-                   class="form-control form-control-sm regular-text"
-                   style="width: 150px;" />
-        </div>
-
-        <div class="form-group mx-sm-2 mb-2">
-            <label class="sr-only regular-text">Estado</label>
+                   class="filtro-input" />
+            
             <input name="Estado"
                    value="@ViewData["Estado"]"
-                   placeholder="Aprovado"
-                   class="form-control form-control-sm regular-text"
-                   style="width: 150px;" />
-        </div>
-
-        <div class="form-group mx-sm-2 mb-2">
-            <label class="sr-only regular-text">Código del contrato</label>
+                   placeholder="Aprobado"
+                   class="filtro-input" />
+            
             <input name="Codigo"
                    value="@ViewData["CodigoContra"]"
-                   placeholder="AUD000321"
-                   class="form-control form-control-sm regular-text"
-                   style="width: 150px;" />
-        </div>
+                   placeholder="AL/0000211"
+                   class="filtro-input" />
+            
+            <button type="submit" class="btn-buscar">Buscar</button>
+            <a class="btn-limpiar" href="@Url.Action("Anticipos")">Limpiar filtros</a>
+        </form>
+    </div>
 
-       
+    <div class="table-container">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Tipo</th>
+                    <th>Estado</th>
+                    <th>Fecha Solicitud</th>
+                    <th>Valor</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model.Where(p => p.Tipo == 0))
+                {
+                    <tr>
+                        <td>@p.Codigo</td>
+                        <td>Anticipo</td>
+                        <td>
+                            <span class="estado-badge @(p.Estado == "Aprobado" ? "estado-aprobado" : "estado-cerrado")">
+                                @p.Estado
+                            </span>
+                        </td>
+                        <td>@p.FechaSolicitud.ToShortDateString()</td>
+                        <td class="valor-cell">@p.Valor.ToString("C")</td>
+                        <td>
+                            <a asp-controller="Anticipos" asp-action="Edit" asp-route-id="@p.Id" class="btn-action btn-editar">
+                                Editar
+                            </a>
+                            <a asp-controller="Anticipos" asp-action="Delete" asp-route-id="@p.Id" class="btn-action btn-eliminar">
+                                Eliminar
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 
-        <div class="mb-1 mx-sm-2">
-            <button type="submit" class="btn btn-crowe mb-1 regular-text btn-sm " style="width:130px;height:34px;">Buscar</button>
-            <a class="btn btn-secondary mb-1 regular-text btn-sm"
-               href="@Url.Action("Anticipos")" style="width:130px;height:34px">Limpiar filtros</a>
-        </div>
-
-
-
-
-
-
-
-
-    </form>
-
+    <div class="button-container">
+        <a asp-action="Create" class="btn-crear">
+            <i class="bi bi-plus-circle"></i> Crear Nuevo Anticipo
+        </a>
+    </div>
 </div>
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Codigo)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Estado)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Funcionario)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FechaSolicitud)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Autorizador)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Tipo)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Valor)
-            </th>
-         
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var p in Model.Where(p => p.Tipo == 0 || p.Tipo == 0))
-        {
-            <tr>
-                <td>@p.Codigo</td>
-                <td>@p.Tipo</td>
-                <td>@p.Estado</td>
-                <td>@p.FechaSolicitud.ToShortDateString()</td>
-                <td>@p.Valor.ToString("C")</td>
-                <td>
-                    @if (p.Tipo == 0)
-                    {
-                        <a asp-controller="Anticipos" asp-action="Edit" asp-route-id="@p.Id" class="btn btn-sm btn-warning">Editar</a>
-                        <a asp-controller="Anticipos" asp-action="Delete" asp-route-id="@p.Id" class="btn btn-sm btn-danger">Eliminar</a>
-                    }
-                    else if (p.Tipo == 0)
-                    {
-                        <a asp-controller="Tiquetes" asp-action="Edit" asp-route-id="@p.Id" class="btn btn-sm btn-warning">Editar</a>
-                        <a asp-controller="Tiquetes" asp-action="Delete" asp-route-id="@p.Id" class="btn btn-sm btn-danger">Eliminar</a>
-                    }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+
+@section Scripts {
+    <script>
+        // Cerrar menú lateral si está abierto al cargar esta página
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar && sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+            }
+        });
+    </script>
+}

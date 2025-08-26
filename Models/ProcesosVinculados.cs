@@ -16,7 +16,7 @@ namespace GestionAnticiposApp.Models
         public string Estado { get; set; }
         public string Funcionario { get; set; }
         public DateTime FechaSolicitud { get; set; }
-        public string Autorizador { get; set; }
+        public string? Autorizador { get; set; }
         public TipoProcesoVinculado Tipo { get; set; }
         public decimal Valor { get; set; }
 
