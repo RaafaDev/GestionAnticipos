@@ -315,7 +315,7 @@
 
     <div class="filtros-section">
         <h5 class="filtros-title">Filtros de búsqueda</h5>
-        <form asp-controller="Anticipos" asp-action="Index" method="get" class="filtros-horizontal">
+        <form asp-controller="Anticipos" asp-action="Index" method="get" class="filtros-horizontal"/>
             <datalist id="funcionarioByUser"></datalist>
             <input type="hidden" id="hiddenFuncionarioId" value="defaultId">
             <input list="FechaSolicitudByUser" autocomplete="off"
@@ -356,12 +356,6 @@
 
 
 
-
-
-
-
-
-    </form>
 
 </div>
 <p>
@@ -412,6 +406,7 @@
                 <td>
                     <a asp-controller="Anticipos" asp-action="Edit" asp-route-id="@p.Id" class="btn btn-sm btn-warning">Editar</a>
                     <a asp-controller="Anticipos" asp-action="Delete" asp-route-id="@p.Id" class="btn btn-sm btn-danger">Eliminar</a>
+                    <a asp-controller="Anticipos" asp-action="Details" asp-route-id="@p.Id" class="btn btn-sm btn-info">Detalles</a>
                 </td>
             </tr>
         }

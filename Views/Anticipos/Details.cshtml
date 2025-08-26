@@ -1,0 +1,46 @@
+﻿@model GestionAnticiposApp.Models.ViewModels.AnticipoVM
+
+@{
+    ViewData["Title"] = "Detalles del Anticipo";
+}
+
+<div class="anticipos-container">
+    <h1 class="page-title">Detalles del Anticipo</h1>
+
+    <div class="table-container">
+        <table class="custom-table">
+            <tbody>
+                <tr>
+                    <th>Código</th>
+                    <td>@Model.Codigo</td>
+                </tr>
+                <tr>
+                    <th>Estado</th>
+                    <td>@Model.Estado</td>
+                </tr>
+                <tr>
+                    <th>Fecha Solicitud</th>
+                    <td>@Model.FechaSolicitud.ToString("dd/MM/yyyy")</td>
+                </tr>
+                <tr>
+                    <th>Valor</th>
+                    <td class="valor-cell">@Model.Valor.ToString("C")</td>
+                </tr>
+                <tr>
+                    <th>Comentarios</th>
+                    <td>@Model.Comentarios</td>
+                </tr>
+                <tr>
+
+                    <th>Funcionario</th>
+                    <td>@Model.Funcionario</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <a asp-action="Details" asp-controller="Contratos" asp-route-id="@ViewBag.ContratoId" class="btn btn-secondary">
+        Volver al Contrato
+    </a>
+
+</div>

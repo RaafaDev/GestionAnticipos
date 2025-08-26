@@ -58,9 +58,6 @@ namespace GestionAnticiposApp.Controllers
         // MÉTODOS PRIVADOS DE MAPEADO
         // ===============================
         private ProcesosVinculados MapToEntity(AnticipoVM vm, int contratoId)
-
-
-
         {
             return new ProcesosVinculados
             {
@@ -78,8 +75,6 @@ namespace GestionAnticiposApp.Controllers
 
         private AnticipoVM MapToVM(ProcesosVinculados entity)
         {
-
-
             ViewData["FechaSolicitud"] = entity.FechaSolicitud;
             ViewData["CodigoContra"] = entity.Codigo;
             ViewData["Estado"] = entity.Estado;
@@ -90,10 +85,9 @@ namespace GestionAnticiposApp.Controllers
                 Estado = entity.Estado,
                 FechaSolicitud = entity.FechaSolicitud,
                 Valor = entity.Valor,
-
-                // Estos campos son solo de la vista
-                Comentarios = "",         // si vienen de otro lado, agrégalos
-                PuedeAprobar = false      // puedes calcularlo según la lógica de negocio
+                Funcionario = entity.Funcionario, // <-- ASIGNACIÓN CORRECTA
+                Comentarios = "",         
+                PuedeAprobar = false      
             };
         }
 
@@ -251,5 +245,23 @@ namespace GestionAnticiposApp.Controllers
 
             return RedirectToAction("Details", "Contratos", new { id = contratoId });
         }
+          // Anticipos/Delete/5
+        public async Task<IActionResult> Details(int id)
+        {
+            var entity = await _context.ProcesosVinculados
+                .Include(p => p.Contrato)
+                .FirstOrDefaultAsync(p => p.Id == id && p.Tipo == 0);
+
+            if (entity == null) return NotFound();
+
+            var vm = MapToVM(entity);
+
+    
+
+            ViewBag.ContratoId = entity.ContratoId;
+
+            return View(vm);
+        }
+
     }
 }
