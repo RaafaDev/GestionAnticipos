@@ -16,15 +16,20 @@ namespace GestionAnticiposApp.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(string? Funcionario, string? Estado, string? Codigo)
+        public async Task<IActionResult> Index(string? FechaSolicitud, string? Estado, string? Codigo, int pageIndex = 1)
         {
+            int pageSize = 2;
+
             var query = _context.ProcesosVinculados
-                .Include(p => p.Contrato) // opcional si quieres traer contratos
+                .Include(p => p.Contrato)
                 .AsQueryable();
 
-            if (!string.IsNullOrEmpty(Funcionario))
+            if (!string.IsNullOrEmpty(FechaSolicitud))
             {
-                query = query.Where(p => p.Funcionario.Contains(Funcionario));
+                if (DateTime.TryParse(FechaSolicitud, out var fecha))
+                {
+                    query = query.Where(p => p.FechaSolicitud.Date == fecha.Date);
+                }
             }
 
             if (!string.IsNullOrEmpty(Estado))
@@ -33,14 +38,17 @@ namespace GestionAnticiposApp.Controllers
             }
 
             if (!string.IsNullOrEmpty(Codigo))
+            {
                 query = query.Where(p => p.Codigo.Contains(Codigo));
+            }
 
-            // Para mantener los valores en el formulario
-            ViewData["Funcionario"] = Funcionario;
+            ViewData["FechaSolicitud"] = FechaSolicitud;
             ViewData["Estado"] = Estado;
             ViewData["CodigoContra"] = Codigo;
 
-            return View(await query.ToListAsync());
+            var paginatedList = await PaginatedList<ProcesosVinculados>.CreateAsync(query.AsNoTracking(), pageIndex, pageSize);
+
+            return View(paginatedList);
         }
 
 
@@ -72,7 +80,7 @@ namespace GestionAnticiposApp.Controllers
         {
 
 
-            ViewData["Funcionario"] = entity.Funcionario;
+            ViewData["FechaSolicitud"] = entity.FechaSolicitud;
             ViewData["CodigoContra"] = entity.Codigo;
             ViewData["Estado"] = entity.Estado;
             return new AnticipoVM

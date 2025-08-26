@@ -1,71 +1,75 @@
-﻿@model IEnumerable<GestionAnticiposApp.Models.Contratos>
+﻿@model PaginatedList<GestionAnticiposApp.Models.Contratos>
 
 @{
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>Contratos</h1>
+
+<form asp-action="Index" method="get" class="form-inline mb-3">
+    <input type="text" name="searchCodigo" value="@ViewData["searchCodigo"]" class="form-control mr-2" placeholder="Buscar por código..." />
+    <button type="submit" class="btn btn-primary">Filtrar</button>
+    <a class="btn btn-secondary ml-2"
+       asp-action="Index"
+       style="height:34px;">Limpiar filtros</a>
+</form>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">Crear Nuevo</a>
 </p>
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Codigo)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Estado)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Servicio)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FechaInicio)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FechaFin)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Empresa)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Referencia)
-            </th>
+            <th>@Html.DisplayNameFor(model => model[0].Codigo)</th>
+            <th>@Html.DisplayNameFor(model => model[0].Estado)</th>
+            <th>@Html.DisplayNameFor(model => model[0].Servicio)</th>
+            <th>@Html.DisplayNameFor(model => model[0].FechaInicio)</th>
+            <th>@Html.DisplayNameFor(model => model[0].FechaFin)</th>
+            <th>@Html.DisplayNameFor(model => model[0].Empresa)</th>
+            <th>@Html.DisplayNameFor(model => model[0].Referencia)</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+@foreach (var item in Model)
+{
         <tr>
+            <td>@Html.DisplayFor(modelItem => item.Codigo)</td>
+            <td>@Html.DisplayFor(modelItem => item.Estado)</td>
+            <td>@Html.DisplayFor(modelItem => item.Servicio)</td>
+            <td>@Html.DisplayFor(modelItem => item.FechaInicio)</td>
+            <td>@Html.DisplayFor(modelItem => item.FechaFin)</td>
+            <td>@Html.DisplayFor(modelItem => item.Empresa)</td>
+            <td>@Html.DisplayFor(modelItem => item.Referencia)</td>
             <td>
-                @Html.DisplayFor(modelItem => item.Codigo)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Estado)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Servicio)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FechaInicio)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FechaFin)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Empresa)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Referencia)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                <a asp-action="Edit" asp-route-id="@item.Id">Editar</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Detalles</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Eliminar</a>
             </td>
         </tr>
 }
     </tbody>
 </table>
+
+<nav aria-label="Paginación">
+    <ul class="pagination">
+        <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+            <a class="page-link" asp-action="Index"
+               asp-route-pageIndex="@(Model.PageIndex - 1)"
+               asp-route-searchCodigo="@ViewData["searchCodigo"]">Anterior</a>
+        </li>
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                <a class="page-link" asp-action="Index"
+                   asp-route-pageIndex="@i"
+                   asp-route-searchCodigo="@ViewData["searchCodigo"]">@i</a>
+            </li>
+        }
+        <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+            <a class="page-link" asp-action="Index"
+               asp-route-pageIndex="@(Model.PageIndex + 1)"
+               asp-route-searchCodigo="@ViewData["searchCodigo"]">Siguiente</a>
+        </li>
+    </ul>
+</nav>
