@@ -1,9 +1,13 @@
-﻿namespace GestionAnticiposApp.Models.ViewModels
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace GestionAnticiposApp.Models.ViewModels
 {
     public class AnticipoVM
     {
         public int Id { get; set; }
         public string Codigo { get; set; }
+        [Required]
+        [RegularExpression("^(Pendiente|Aprobado|Rechazado)$", ErrorMessage = "Estado inválido.")]
         public string Estado { get; set; }
         public DateTime FechaSolicitud { get; set; }
         public decimal Valor { get; set; }
