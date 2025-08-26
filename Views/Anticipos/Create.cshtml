@@ -3,150 +3,11 @@
     ViewData["Title"] = "Agregar Anticipo";
 }
 
-<style>
-    :root {
-        --azul-oscuro: #0C1E5B;
-        --amarillo: #FFD700;
-        --blanco: #ffffff;
-        --gris-claro: #f8f9fa;
-        --gris-medio: #e9ecef;
-        --verde: #28a745;
-        --rojo: #dc3545;
-    }
+<h2>@ViewData["Title"]</h2>
+<hr />
 
-    .form-container {
-        background-color: var(--blanco);
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        padding: 30px;
-        margin: 20px auto;
-        max-width: 800px;
-    }
-
-    .page-title {
-        color: var(--azul-oscuro);
-        font-weight: bold;
-        margin-bottom: 25px;
-        padding-bottom: 15px;
-        border-bottom: 2px solid var(--amarillo);
-        text-align: center;
-    }
-
-    .form-label {
-        color: var(--azul-oscuro);
-        font-weight: 600;
-        margin-bottom: 8px;
-    }
-
-    .form-control {
-        border: 1px solid #ced4da;
-        border-radius: 6px;
-        padding: 10px 15px;
-        font-size: 1rem;
-        transition: all 0.3s;
-    }
-
-        .form-control:focus {
-            border-color: var(--amarillo);
-            box-shadow: 0 0 0 0.3rem rgba(255, 215, 0, 0.2);
-            outline: none;
-        }
-
-    .text-danger {
-        font-size: 0.9rem;
-        margin-top: 5px;
-        font-weight: 500;
-    }
-
-    .btn-primary-custom {
-        background-color: var(--azul-oscuro);
-        color: var(--blanco);
-        border: none;
-        border-radius: 6px;
-        padding: 12px 25px;
-        font-weight: 600;
-        transition: all 0.3s;
-        min-width: 120px;
-    }
-
-        .btn-primary-custom:hover {
-            background-color: #0a1847;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-        }
-
-    .btn-secondary-custom {
-        background-color: var(--gris-medio);
-        color: var(--azul-oscuro);
-        border: none;
-        border-radius: 6px;
-        padding: 12px 25px;
-        font-weight: 600;
-        transition: all 0.3s;
-        min-width: 120px;
-        text-decoration: none;
-        display: inline-block;
-        text-align: center;
-    }
-
-        .btn-secondary-custom:hover {
-            background-color: #dde1e6;
-            color: var(--azul-oscuro);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            text-decoration: none;
-        }
-
-    .button-group {
-        display: flex;
-        gap: 15px;
-        justify-content: center;
-        margin-top: 30px;
-        padding-top: 20px;
-        border-top: 1px solid #eee;
-    }
-
-    .form-row {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 20px;
-        margin-bottom: 20px;
-    }
-
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-
-    textarea.form-control {
-        min-height: 100px;
-        resize: vertical;
-    }
-
-    @@media (max-width: 768px) {
-        .form-container {
-            padding: 20px;
-            margin: 10px;
-        }
-
-        .form-row {
-            grid-template-columns: 1fr;
-        }
-
-        .button-group {
-            flex-direction: column;
-        }
-
-        .btn-primary-custom, .btn-secondary-custom {
-            width: 100%;
-        }
-    }
-</style>
-
-<div class="form-container">
-    <h2 class="page-title">@ViewData["Title"]</h2>
-
-    <form asp-action="Create" method="post">
-        <input type="hidden" name="contratoId" value="@ViewBag.ContratoId" />
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="contratoId" value="@ViewBag.ContratoId" />
 
         <div class="form-row">
             <div class="form-group">
@@ -182,12 +43,17 @@
             <span asp-validation-for="Comentarios" class="text-danger"></span>
         </div>
 
-        <div class="button-group">
-            <button type="submit" class="btn-primary-custom">Guardar</button>
-            <a asp-action="Details" asp-controller="Contratos" asp-route-id="@ViewBag.ContratoId" class="btn-secondary-custom">Cancelar</a>
-        </div>
-    </form>
-</div>
+    <!-- 📂 Campo para subir documento -->
+    <div class="mb-3">
+        <label for="Documentos" class="form-label">Subir documentos</label>
+        <input type="file" name="Documentos" class="form-control" multiple
+               accept=".pdf,.doc,.docx,.jpg,.png" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a asp-action="Details" asp-controller="Contratos" asp-route-id="@ViewBag.ContratoId" class="btn btn-secondary">Cancelar</a>
+</form>
+
 
 @section Scripts {
     @{
