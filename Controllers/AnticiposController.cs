@@ -68,6 +68,7 @@ namespace GestionAnticiposApp.Controllers
             if (entity == null)
             {
                 _loggerHelper.LogWarning($"El usuario {User.Identity?.Name ?? "Desconocido"} intentó acceder a detalles de un anticipo inexistente (Id: {id}).");
+                _loggerHelper.LogError($"Acceso fallido a detalles de anticipo. Id: {id}.");
                 return NotFound();
             }
 
@@ -76,45 +77,6 @@ namespace GestionAnticiposApp.Controllers
             var vm = MapToVM(entity);
             ViewBag.ContratoId = entity.ContratoId;
             return View(vm);
-        }
-
-
-
-        // ===============================
-        // MÉTODOS PRIVADOS DE MAPEADO
-        // ===============================
-        private ProcesosVinculados MapToEntity(AnticipoVM vm, int contratoId)
-        {
-            return new ProcesosVinculados
-            {
-                Id = vm.Id,
-                Codigo = vm.Codigo,
-                Estado = vm.Estado,
-                FechaSolicitud = vm.FechaSolicitud,
-                Valor = vm.Valor,
-                Tipo = 0,               // fijo
-                ContratoId = contratoId,
-                Funcionario = User.Identity?.Name ?? "Desconocido",
-                Autorizador = ""                 // lo puedes rellenar luego si aplica
-            };
-        }
-
-        private AnticipoVM MapToVM(ProcesosVinculados entity)
-        {
-            ViewData["FechaSolicitud"] = entity.FechaSolicitud;
-            ViewData["CodigoContra"] = entity.Codigo;
-            ViewData["Estado"] = entity.Estado;
-            return new AnticipoVM
-            {
-                Id = entity.Id,
-                Codigo = entity.Codigo,
-                Estado = entity.Estado,
-                FechaSolicitud = entity.FechaSolicitud,
-                Valor = entity.Valor,
-                Funcionario = entity.Funcionario, // <-- ASIGNACIÓN CORRECTA
-                Comentarios = "",         
-                PuedeAprobar = false      
-            };
         }
 
         // GET: Anticipos/Create
@@ -131,11 +93,11 @@ namespace GestionAnticiposApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(AnticipoVM vm, int contratoId, List<IFormFile> Documentos)
         {
-
             var errores = ModelState.Values.SelectMany(v => v.Errors);
             foreach (var error in errores)
             {
                 Console.WriteLine(error.ErrorMessage);
+                _loggerHelper.LogError($"Error de validación al crear anticipo: {error.ErrorMessage}");
             }
 
             if (!ModelState.IsValid)
@@ -145,13 +107,12 @@ namespace GestionAnticiposApp.Controllers
                 return View(vm);
             }
 
-            
             var entity = MapToEntity(vm, contratoId);
 
             _context.ProcesosVinculados.Add(entity);
-            await _context.SaveChangesAsync(); // primero guardamos para tener el Id
+            await _context.SaveChangesAsync();
 
-            // 📂 Si hay documentos subidos
+            // Documentos
             if (Documentos != null && Documentos.Any())
             {
                 var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
@@ -174,8 +135,7 @@ namespace GestionAnticiposApp.Controllers
 
                         var nuevoDocumento = new Documentos
                         {
-                            Archivo = "/uploads/" + fileName, // ruta accesible
-
+                            Archivo = "/uploads/" + fileName,
                             ProcesoVinculadoId = entity.Id
                         };
 
@@ -191,8 +151,6 @@ namespace GestionAnticiposApp.Controllers
             return RedirectToAction("Details", "Contratos", new { id = contratoId });
         }
 
-
-
         // GET: Anticipos/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
@@ -201,14 +159,13 @@ namespace GestionAnticiposApp.Controllers
             if (entity == null)
             {
                 _loggerHelper.LogWarning($"El usuario {User.Identity?.Name ?? "Desconocido"} intentó editar un anticipo inexistente (Id: {id}).");
+                _loggerHelper.LogError($"Acceso fallido a edición de anticipo. Id: {id}.");
                 return NotFound();
             }
 
             _loggerHelper.LogInfo($"El usuario {User.Identity?.Name ?? "Desconocido"} accedió a la edición del anticipo con Id: {id}.");
-
-            var vm = MapToVM(entity);
             ViewBag.ContratoId = entity.ContratoId;
-            return View(vm);
+            return View(MapToVM(entity));
         }
 
         // POST: Anticipos/Edit/5
@@ -221,6 +178,7 @@ namespace GestionAnticiposApp.Controllers
             {
                 ViewBag.ContratoId = contratoId;
                 _loggerHelper.LogWarning($"El usuario {User.Identity?.Name ?? "Desconocido"} intentó editar un anticipo pero la validación falló (Id: {id}).");
+                _loggerHelper.LogError($"Error de validación al editar anticipo.");
                 return View(vm);
             }
 
@@ -229,6 +187,7 @@ namespace GestionAnticiposApp.Controllers
             if (entity == null)
             {
                 _loggerHelper.LogWarning($"El usuario {User.Identity?.Name ?? "Desconocido"} intentó editar un anticipo inexistente (Id: {id}).");
+                _loggerHelper.LogError($"Acceso fallido a edición de anticipo. Id: {id}.");
                 return NotFound();
             }
 
@@ -252,11 +211,28 @@ namespace GestionAnticiposApp.Controllers
             entity.FechaSolicitud = vm.FechaSolicitud;
             entity.Valor = vm.Valor;
 
-            _context.Update(entity);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.Update(entity);
+                await _context.SaveChangesAsync();
 
-            // Log de cambios automáticos
-            _loggerHelper.LogEntityChanges(original, entity);
+                // Solo aquí: log de cambios campo a campo
+                _loggerHelper.LogEntityChanges(original, entity);
+
+                _loggerHelper.LogInfo($"El usuario {User.Identity?.Name ?? "Desconocido"} editó el anticipo con código {entity.Codigo}.");
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                _loggerHelper.LogError($"Error de concurrencia al editar el anticipo (Id: {entity.Id}): {ex.Message}");
+                if (await _context.ProcesosVinculados.FindAsync(id) == null)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
 
             return RedirectToAction("Details", "Contratos", new { id = contratoId });
         }
@@ -269,14 +245,13 @@ namespace GestionAnticiposApp.Controllers
             if (entity == null)
             {
                 _loggerHelper.LogWarning($"El usuario {User.Identity?.Name ?? "Desconocido"} intentó eliminar un anticipo inexistente (Id: {id}).");
+                _loggerHelper.LogError($"Acceso fallido a eliminación de anticipo. Id: {id}.");
                 return NotFound();
             }
 
-            _loggerHelper.LogInfo($"El usuario {User.Identity?.Name ?? "Desconocido"} accedió a la vista de eliminación del anticipo con Id: {id}.");
-
-            var vm = MapToVM(entity);
+            _loggerHelper.LogInfo($"El usuario {User.Identity?.Name ?? "Desconocido"} accedió a la eliminación del anticipo con Id: {id}.");
             ViewBag.ContratoId = entity.ContratoId;
-            return View(vm);
+            return View(MapToVM(entity));
         }
 
         // POST: Anticipos/Delete/5
@@ -286,20 +261,56 @@ namespace GestionAnticiposApp.Controllers
         {
             var entity = await _context.ProcesosVinculados
                 .FirstOrDefaultAsync(p => p.Id == id && p.Tipo == 0);
-            if (entity == null)
+            if (entity != null)
+            {
+                _context.ProcesosVinculados.Remove(entity);
+                _loggerHelper.LogInfo($"El usuario {User.Identity?.Name ?? "Desconocido"} eliminó el anticipo con Id: {id} para el contrato {contratoId}.");
+            }
+            else
             {
                 _loggerHelper.LogWarning($"El usuario {User.Identity?.Name ?? "Desconocido"} intentó eliminar un anticipo inexistente (Id: {id}).");
-                return NotFound();
+                _loggerHelper.LogError($"Intento fallido de eliminación de anticipo.");
             }
 
-            _context.ProcesosVinculados.Remove(entity);
             await _context.SaveChangesAsync();
-
-            _loggerHelper.LogInfo($"El usuario {User.Identity?.Name ?? "Desconocido"} eliminó el anticipo con Id: {id} para el contrato {contratoId}.");
-
             return RedirectToAction("Details", "Contratos", new { id = contratoId });
         }
-        
 
+        // ===============================
+        // MÉTODOS PRIVADOS DE MAPEADO
+        // ===============================
+        private ProcesosVinculados MapToEntity(AnticipoVM vm, int contratoId)
+        {
+            return new ProcesosVinculados
+            {
+                Id = vm.Id,
+                Codigo = vm.Codigo,
+                Estado = vm.Estado,
+                FechaSolicitud = vm.FechaSolicitud,
+                Valor = vm.Valor,
+                Tipo = 0,
+                ContratoId = contratoId,
+                Funcionario = User.Identity?.Name ?? "Desconocido",
+                Autorizador = ""
+            };
+        }
+
+        private AnticipoVM MapToVM(ProcesosVinculados entity)
+        {
+            ViewData["FechaSolicitud"] = entity.FechaSolicitud;
+            ViewData["CodigoContra"] = entity.Codigo;
+            ViewData["Estado"] = entity.Estado;
+            return new AnticipoVM
+            {
+                Id = entity.Id,
+                Codigo = entity.Codigo,
+                Estado = entity.Estado,
+                FechaSolicitud = entity.FechaSolicitud,
+                Valor = entity.Valor,
+                Funcionario = entity.Funcionario,
+                Comentarios = "",
+                PuedeAprobar = false
+            };
+        }
     }
 }
