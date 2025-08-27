@@ -95,7 +95,8 @@ namespace GestionAnticiposApp.Controllers
                 Tipo = 0,               // fijo
                 ContratoId = contratoId,
                 Funcionario = User.Identity?.Name ?? "Desconocido",
-                Autorizador = ""                 // lo puedes rellenar luego si aplica
+                Autorizador = "" ,                // lo puedes rellenar luego si aplica
+                Comentarios = vm.Comentarios
             };
         }
 
@@ -112,7 +113,7 @@ namespace GestionAnticiposApp.Controllers
                 FechaSolicitud = entity.FechaSolicitud,
                 Valor = entity.Valor,
                 Funcionario = entity.Funcionario, // <-- ASIGNACIÓN CORRECTA
-                Comentarios = "",         
+                Comentarios = entity.Comentarios,         
                 PuedeAprobar = false      
             };
         }
