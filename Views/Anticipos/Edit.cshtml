@@ -157,7 +157,7 @@
     <h2 class="page-title">@ViewData["Title"]</h2>
     <div class="edit-badge">Editando anticipo: @Model.Codigo</div>
 
-    <form asp-action="Edit" method="post">
+    <form asp-action="Edit" method="post" enctype="multipart/form-data">
         <input type="hidden" asp-for="Id" />
         <input type="hidden" name="contratoId" value="@ViewBag.ContratoId" />
 
@@ -172,7 +172,7 @@
         </div>
     @using Microsoft.AspNetCore.Identity
 
-    @if (User.IsInRole("Aprobador"))
+        @if (User.IsInRole("Aprobador") || User.IsInRole("Admin"))
     {
         <div class="mb-3">
             <label asp-for="Estado" class="form-label"></label>
@@ -208,7 +208,11 @@
             <textarea asp-for="Comentarios" class="form-control" placeholder="Ingrese comentarios adicionales sobre el anticipo"></textarea>
             <span asp-validation-for="Comentarios" class="text-danger"></span>
         </div>
-
+        <div class="mb-3">
+            <label for="Documentos" class="form-label">Subir documentos</label>
+            <input type="file" name="Documentos" class="form-control" multiple
+                   accept=".pdf,.doc,.docx,.jpg,.png" />
+        </div>
         <div class="button-group">
             <button type="submit" class="btn-primary-custom">Guardar cambios</button>
             <a asp-action="Details" asp-controller="Contratos" asp-route-id="@ViewBag.ContratoId" class="btn-secondary-custom">Cancelar</a>

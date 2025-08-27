@@ -63,6 +63,7 @@ namespace GestionAnticiposApp.Controllers
         {
             var entity = await _context.ProcesosVinculados
                 .Include(p => p.Contrato)
+                .Include(p => p.Documentos)
                 .FirstOrDefaultAsync(p => p.Id == id && p.Tipo == 0);
 
             if (entity == null)
@@ -75,6 +76,7 @@ namespace GestionAnticiposApp.Controllers
             _loggerHelper.LogInfo($"El usuario {User.Identity?.Name ?? "Desconocido"} accedió a los detalles del anticipo con Id: {id}.");
 
             var vm = MapToVM(entity);
+            vm.Documentos = entity.Documentos.OrderBy(d => d.Id).ToList();
             ViewBag.ContratoId = entity.ContratoId;
             return View(vm);
         }
@@ -203,6 +205,7 @@ namespace GestionAnticiposApp.Controllers
                 return NotFound();
             }
 
+
             _loggerHelper.LogInfo($"El usuario {User.Identity?.Name ?? "Desconocido"} accedió a la edición del anticipo con Id: {id}.");
             ViewBag.ContratoId = entity.ContratoId;
             return View(MapToVM(entity));
@@ -211,8 +214,8 @@ namespace GestionAnticiposApp.Controllers
         // POST: Anticipos/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Aprobador, Administrador")]
-        public async Task<IActionResult> Edit(int id, AnticipoVM vm, int contratoId)
+        [Authorize(Roles = "Aprobador, Admin")]
+        public async Task<IActionResult> Edit(int id, AnticipoVM vm, int contratoId, List<IFormFile> Documentos)
         {
             if (!ModelState.IsValid)
             {
@@ -223,6 +226,7 @@ namespace GestionAnticiposApp.Controllers
             }
 
             var entity = await _context.ProcesosVinculados
+                .Include(p => p.Documentos)
                 .FirstOrDefaultAsync(p => p.Id == id && p.Tipo == 0);
             if (entity == null)
             {
@@ -250,15 +254,46 @@ namespace GestionAnticiposApp.Controllers
             entity.Estado = vm.Estado;
             entity.FechaSolicitud = vm.FechaSolicitud;
             entity.Valor = vm.Valor;
+            entity.Comentarios = vm.Comentarios;
+
+            // Procesar nuevos documentos adjuntos
+            if (Documentos != null && Documentos.Any())
+            {
+                var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+                if (!Directory.Exists(uploadsPath))
+                {
+                    Directory.CreateDirectory(uploadsPath);
+                }
+
+                foreach (var file in Documentos)
+                {
+                    if (file.Length > 0)
+                    {
+                        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                        var filePath = Path.Combine(uploadsPath, fileName);
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream);
+                        }
+
+                        var nuevoDocumento = new Documentos
+                        {
+                            Archivo = "/uploads/" + fileName,
+                            ProcesoVinculadoId = entity.Id
+                        };
+
+                        _context.Documentos.Add(nuevoDocumento);
+                    }
+                }
+            }
 
             try
             {
                 _context.Update(entity);
                 await _context.SaveChangesAsync();
 
-                // Solo aquí: log de cambios campo a campo
                 _loggerHelper.LogEntityChanges(original, entity);
-
                 _loggerHelper.LogInfo($"El usuario {User.Identity?.Name ?? "Desconocido"} editó el anticipo con código {entity.Codigo}.");
             }
             catch (DbUpdateConcurrencyException ex)
