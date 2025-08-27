@@ -74,8 +74,16 @@ namespace GestionAnticiposApp.Controllers
 
             _loggerHelper.LogInfo($"El usuario {User.Identity?.Name ?? "Desconocido"} accedió a los detalles del anticipo con Id: {id}.");
 
+            // Consulta de historial de cambios de estado para este anticipo
+            var historialEstado = await _context.Logs
+                .Where(l => l.Nivel == "Edit" && l.Campo == "Estado" && l.ProcesoVinculadoId == id)
+                .OrderByDescending(l => l.Fecha)
+                .ToListAsync();
+
             var vm = MapToVM(entity);
             ViewBag.ContratoId = entity.ContratoId;
+            ViewBag.HistorialEstado = historialEstado;
+
             return View(vm);
         }
 

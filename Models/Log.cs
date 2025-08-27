@@ -11,5 +11,7 @@
         public string? Campo { get; set; }
         public string? ValorAntes { get; set; }
         public string? ValorDespues { get; set; }
+        public int? ProcesoVinculadoId { get; set; }
+        public ProcesosVinculados ProcesoVinculado { get; set; }
     }
 }

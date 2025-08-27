@@ -1,4 +1,5 @@
 ﻿@model GestionAnticiposApp.Models.PaginatedList<GestionAnticiposApp.Models.Log>
+
 @{
     ViewData["Title"] = "Historial de Cambios";
 }
@@ -9,18 +10,23 @@
     <thead>
         <tr>
             <th>Usuario</th>
+            <th>Codigo</th>
             <th>Campo</th>
+            <th>Tipo</th>
             <th>Valor Antes</th>
             <th>Valor Después</th>
             <th>Fecha</th>
         </tr>
     </thead>
     <tbody>
+
         @foreach (var log in Model)
         {
             <tr>
                 <td>@log.Usuario</td>
+                <td>@log.ProcesoVinculado.Codigo</td>
                 <td>@log.Campo</td>
+                <td>@log.ProcesoVinculado.Tipo</td>
                 <td>@log.ValorAntes</td>
                 <td>@log.ValorDespues</td>
                 <td>@log.Fecha.ToString("g")</td>

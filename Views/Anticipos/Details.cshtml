@@ -44,3 +44,41 @@
     </a>
 
 </div>
+
+@{
+    var historial = ViewBag.HistorialEstado as List<GestionAnticiposApp.Models.Log>;
+}
+
+@if (historial != null && historial.Any())
+{
+    <h2>Historial de Cambios de Estado</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Usuario</th>
+				<th>Codigo</th>
+                <th>Valor Antes</th>
+                <th>Valor Después</th>
+                <th>Fecha</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var log in historial)
+            {
+                <tr>
+                    <td>@log.Usuario</td>
+                    <td>@log.ProcesoVinculado.Codigo</td>
+                    <td>@log.ValorAntes</td>
+                    <td>@log.ValorDespues</td>
+                    <td>@log.Fecha.ToString("g")</td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No hay historial de cambios de estado para este anticipo.</p>
+}
