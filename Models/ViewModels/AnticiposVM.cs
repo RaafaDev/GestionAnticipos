@@ -12,10 +12,12 @@ namespace GestionAnticiposApp.Models.ViewModels
         public DateTime FechaSolicitud { get; set; }
         public decimal Valor { get; set; }
         public string? Funcionario { get; set; }
-        
+
         public string? Autorizador { get; set; }
 
-        
+        public List<Documentos> Documentos { get; set; } = new();
+
+
 
         // Campos adicionales solo para la vista
         public string Comentarios { get; set; }

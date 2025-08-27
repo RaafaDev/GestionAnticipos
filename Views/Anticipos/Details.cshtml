@@ -351,6 +351,27 @@
             </tbody>
         </table>
     </div>
+    <div class="documentos-container">
+        <h2>Documentos Adjuntos</h2>
+        @if (Model.Documentos != null && Model.Documentos.Any())
+        {
+            <ul class="documentos-list">
+                @foreach (var doc in Model.Documentos)
+                {
+                    <li>
+                        <a href="@doc.Archivo" target="_blank" download>
+                         
+                            @doc.Archivo
+                        </a>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>No hay documentos adjuntos.</p>
+        }
+    </div>
 
     <div class="button-container">
         <a asp-action="Details" asp-controller="Contratos" asp-route-id="@ViewBag.ContratoId" class="btn-secondary">

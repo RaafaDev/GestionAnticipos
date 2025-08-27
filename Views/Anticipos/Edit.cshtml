@@ -319,7 +319,7 @@
         <div class="edit-badge">Editando anticipo: @Model.Codigo</div>
     </div>
 
-    <form asp-action="Edit" method="post">
+    <form asp-action="Edit" method="post" enctype="multipart/form-data">
         <input type="hidden" asp-for="Id" />
         <input type="hidden" name="contratoId" value="@ViewBag.ContratoId" />
 
@@ -359,43 +359,49 @@
                 </div>
             </div>
         </div>
+    @using Microsoft.AspNetCore.Identity
 
-        @using Microsoft.AspNetCore.Identity
-        @if (User.IsInRole("Aprobador"))
-        {
-            <div class="form-section">
-                <h3 class="form-section-title">Estado del Anticipo <span class="role-badge">Usuario Aprobador</span></h3>
-                <div class="form-group">
-                    <label asp-for="Estado" class="form-label"></label>
-                    <div class="input-icon">
-                        <i class="fas fa-check-circle"></i>
-                        <select asp-for="Estado" class="form-control">
-                            <option value="Pendiente">Pendiente</option>
-                            <option value="Aprobado">Aprobado</option>
-                            <option value="Rechazado">Rechazado</option>
-                        </select>
-                    </div>
-                    <span asp-validation-for="Estado" class="text-danger"></span>
-                </div>
-            </div>
-        }
-        else
-        {
-            <input type="hidden" asp-for="Estado" />
-        }
+        @if (User.IsInRole("Aprobador") || User.IsInRole("Admin"))
+    {
+        <div class="mb-3">
+            <label asp-for="Estado" class="form-label"></label>
+            <select asp-for="Estado" class="form-control">
+                <option value="Pendiente">Pendiente</option>
+                <option value="Aprobado">Aprobado</option>
+                <option value="Rechazado">Rechazado</option>
+            </select>
+            <span asp-validation-for="Estado" class="text-danger"></span>
+        </div>
+    }
+    else
+    {
+        <input type="hidden" asp-for="Estado" />
+    }
 
-        <div class="form-section">
-            <h3 class="form-section-title">Comentarios Adicionales</h3>
+        <div class="form-row">
             <div class="form-group">
-                <label asp-for="Comentarios" class="form-label"></label>
-                <div class="input-icon">
-                    <i class="fas fa-comment"></i>
-                    <textarea asp-for="Comentarios" class="form-control" placeholder="Ingrese comentarios adicionales sobre el anticipo"></textarea>
-                </div>
-                <span asp-validation-for="Comentarios" class="text-danger"></span>
+                <label asp-for="FechaSolicitud" class="form-label"></label>
+                <input asp-for="FechaSolicitud" class="form-control" type="date" />
+                <span asp-validation-for="FechaSolicitud" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Valor" class="form-label"></label>
+                <input asp-for="Valor" class="form-control" type="number" step="0.01" placeholder="0.00" />
+                <span asp-validation-for="Valor" class="text-danger"></span>
             </div>
         </div>
 
+        <div class="form-group">
+            <label asp-for="Comentarios" class="form-label"></label>
+            <textarea asp-for="Comentarios" class="form-control" placeholder="Ingrese comentarios adicionales sobre el anticipo"></textarea>
+            <span asp-validation-for="Comentarios" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label for="Documentos" class="form-label">Subir documentos</label>
+            <input type="file" name="Documentos" class="form-control" multiple
+                   accept=".pdf,.doc,.docx,.jpg,.png" />
+        </div>
         <div class="button-group">
             <button type="submit" class="btn-primary-custom">
                 <i class="fas fa-save"></i> Guardar cambios
