@@ -87,6 +87,46 @@ namespace GestionAnticiposApp.Controllers
             return View(vm);
         }
 
+
+
+        // ===============================
+        // MÉTODOS PRIVADOS DE MAPEADO
+        // ===============================
+        private ProcesosVinculados MapToEntity(AnticipoVM vm, int contratoId)
+        {
+            return new ProcesosVinculados
+            {
+                Id = vm.Id,
+                Codigo = vm.Codigo,
+                Estado = vm.Estado,
+                FechaSolicitud = vm.FechaSolicitud,
+                Valor = vm.Valor,
+                Tipo = 0,               // fijo
+                ContratoId = contratoId,
+                Funcionario = User.Identity?.Name ?? "Desconocido",
+                Autorizador = "" ,                // lo puedes rellenar luego si aplica
+                Comentarios = vm.Comentarios
+            };
+        }
+
+        private AnticipoVM MapToVM(ProcesosVinculados entity)
+        {
+            ViewData["FechaSolicitud"] = entity.FechaSolicitud;
+            ViewData["CodigoContra"] = entity.Codigo;
+            ViewData["Estado"] = entity.Estado;
+            return new AnticipoVM
+            {
+                Id = entity.Id,
+                Codigo = entity.Codigo,
+                Estado = entity.Estado,
+                FechaSolicitud = entity.FechaSolicitud,
+                Valor = entity.Valor,
+                Funcionario = entity.Funcionario, // <-- ASIGNACIÓN CORRECTA
+                Comentarios = entity.Comentarios,         
+                PuedeAprobar = false      
+            };
+        }
+
         // GET: Anticipos/Create
         public IActionResult Create(int contratoId)
         {
@@ -287,38 +327,8 @@ namespace GestionAnticiposApp.Controllers
         // ===============================
         // MÉTODOS PRIVADOS DE MAPEADO
         // ===============================
-        private ProcesosVinculados MapToEntity(AnticipoVM vm, int contratoId)
-        {
-            return new ProcesosVinculados
-            {
-                Id = vm.Id,
-                Codigo = vm.Codigo,
-                Estado = vm.Estado,
-                FechaSolicitud = vm.FechaSolicitud,
-                Valor = vm.Valor,
-                Tipo = 0,
-                ContratoId = contratoId,
-                Funcionario = User.Identity?.Name ?? "Desconocido",
-                Autorizador = ""
-            };
-        }
 
-        private AnticipoVM MapToVM(ProcesosVinculados entity)
-        {
-            ViewData["FechaSolicitud"] = entity.FechaSolicitud;
-            ViewData["CodigoContra"] = entity.Codigo;
-            ViewData["Estado"] = entity.Estado;
-            return new AnticipoVM
-            {
-                Id = entity.Id,
-                Codigo = entity.Codigo,
-                Estado = entity.Estado,
-                FechaSolicitud = entity.FechaSolicitud,
-                Valor = entity.Valor,
-                Funcionario = entity.Funcionario,
-                Comentarios = "",
-                PuedeAprobar = false
-            };
-        }
+
+
     }
 }

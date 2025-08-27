@@ -23,6 +23,7 @@ namespace GestionAnticiposApp.Models
         public int ContratoId { get; set; }
         public Contratos Contrato { get; set; }
 
+        public string? Comentarios { get; set; }
         public ICollection<Notificaciones> Notificaciones { get; set; }
         public ICollection<Aprobaciones> Aprobaciones { get; set; }
         public ICollection<Documentos> Documentos { get; set; } = new List<Documentos>();

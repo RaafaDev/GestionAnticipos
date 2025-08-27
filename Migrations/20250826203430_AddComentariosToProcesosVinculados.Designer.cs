@@ -4,6 +4,7 @@ using GestionAnticipos.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GestionAnticiposApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250826203430_AddComentariosToProcesosVinculados")]
+    partial class AddComentariosToProcesosVinculados
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -137,9 +140,6 @@ namespace GestionAnticiposApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ProcesoVinculadoId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Usuario")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -151,8 +151,6 @@ namespace GestionAnticiposApp.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ProcesoVinculadoId");
 
                     b.ToTable("Logs");
                 });
@@ -451,15 +449,6 @@ namespace GestionAnticiposApp.Migrations
                         .HasForeignKey("ProcesoVinculadoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("ProcesoVinculado");
-                });
-
-            modelBuilder.Entity("GestionAnticiposApp.Models.Log", b =>
-                {
-                    b.HasOne("GestionAnticiposApp.Models.ProcesosVinculados", "ProcesoVinculado")
-                        .WithMany()
-                        .HasForeignKey("ProcesoVinculadoId");
 
                     b.Navigation("ProcesoVinculado");
                 });
