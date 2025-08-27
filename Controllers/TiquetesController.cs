@@ -4,12 +4,14 @@ using GestionAnticiposApp.Data;
 using GestionAnticiposApp.Models; // 👈 Importar namespace del enum y modelos
 using GestionAnticiposApp.Models.ViewModels;
 using GestionAnticiposApp.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace GestionAnticiposApp.Controllers
 {
+    [Authorize]
     public class TiquetesController : Controller
     {
         private readonly ApplicationDbContext _context;

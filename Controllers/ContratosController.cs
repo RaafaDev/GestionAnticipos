@@ -12,6 +12,7 @@ using GestionAnticipos.Models;
 
 namespace GestionAnticiposApp.Controllers
 {
+    [Authorize]
     public class ContratosController : Controller
     {
         private readonly ApplicationDbContext _context;

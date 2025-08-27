@@ -1,12 +1,14 @@
 ﻿using GestionAnticipos.Data;
+using GestionAnticipos.Models;
 using GestionAnticiposApp.Data;
 using GestionAnticiposApp.Models;
 using GestionAnticiposApp.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using GestionAnticipos.Models;
 namespace GestionAnticiposApp.Controllers
 {
+    [Authorize]
     public class HistorialEstadosController : Controller
     {
         private readonly ApplicationDbContext _context;

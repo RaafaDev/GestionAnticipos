@@ -9,6 +9,7 @@ using GestionAnticipos.Models;
 
 namespace GestionAnticiposApp.Controllers
 {
+    [Authorize]
     public class AnticiposController : Controller
     {
         private readonly ApplicationDbContext _context;
