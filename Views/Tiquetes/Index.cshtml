@@ -1,6 +1,6 @@
 ﻿@model IEnumerable<GestionAnticiposApp.ViewModels.TiquetesVM>
 
-<h2> Tiquetes</h2>
+<h2>Tiquetes</h2>
 <table class="table">
     <thead>
         <tr>
@@ -17,10 +17,10 @@
         @foreach (var item in Model)
         {
             <tr>
-                <td>@item.AnticipoCodigo</td>
-                <td>@item.ContratoCodigo</td>
+                <td>@item.ProcesoVinculadoId</td>
+                <td>@item.ContratoId</td>
                 <td>@item.Concepto</td>
-                <td>@item.Valor</td>
+                <td>@item.Valor.ToString("C")</td>
                 <td>@item.Fecha.ToShortDateString()</td>
                 <td>@item.Estado</td>
                 <td>
@@ -30,4 +30,6 @@
         }
     </tbody>
 </table>
+
 <a asp-action="Create" class="btn btn-primary">Nuevo Tiquete</a>
+

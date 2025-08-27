@@ -3,33 +3,41 @@
 <h2>Registrar Tiquete</h2>
 
 <form asp-action="Create" enctype="multipart/form-data">
+    <input type="hidden" asp-for="ContratoId" value="@ViewBag.ContratoId" />
+
     <div class="form-group">
         <label>Anticipo</label>
-        <select asp-for="ProcesoVinculadoId" class="form-control" asp-items="@(new SelectList(ViewBag.Anticipos, "Id", "Codigo"))"></select>
+        <select asp-for="ProcesoVinculadoId"
+                class="form-control"
+                asp-items="ViewBag.Anticipos">
+            <option value="">-- Seleccione un Anticipo --</option>
+        </select>
+        <span asp-validation-for="ProcesoVinculadoId" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label asp-for="Concepto"></label>
+        <label>Concepto</label>
         <input asp-for="Concepto" class="form-control" />
         <span asp-validation-for="Concepto" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label asp-for="Valor"></label>
+        <label>Valor</label>
         <input asp-for="Valor" class="form-control" />
         <span asp-validation-for="Valor" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label asp-for="Fecha"></label>
+        <label>Fecha</label>
         <input asp-for="Fecha" type="date" class="form-control" />
         <span asp-validation-for="Fecha" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label>Documentos</label>
+        <label>Archivos</label>
         <input asp-for="Archivos" type="file" multiple class="form-control" />
+        <span asp-validation-for="Archivos" class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-success">Guardar</button>
+    <button type="submit" class="btn btn-primary">Guardar</button>
 </form>

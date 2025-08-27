@@ -1,8 +1,11 @@
 ﻿using GestionAnticipos.Data;
+using GestionAnticipos.Models;
 using GestionAnticiposApp.Data;
-using GestionAnticiposApp.ViewModels;
 using GestionAnticiposApp.Models; // 👈 Importar namespace del enum y modelos
+using GestionAnticiposApp.Models.ViewModels;
+using GestionAnticiposApp.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace GestionAnticiposApp.Controllers
@@ -18,22 +21,21 @@ namespace GestionAnticiposApp.Controllers
             _env = env;
         }
 
-        // GET: Tiquetes
+        // ✅ LISTAR TIQUETES
         public async Task<IActionResult> Index()
         {
             var tiquetes = await _context.ProcesosVinculados
                 .Include(p => p.Contrato)
-                .Where(p => p.Tipo == TipoProcesoVinculado.Tiquete) // ✅ Enum
+                .Where(p => p.Tipo == TipoProcesoVinculado.Tiquete) // Solo tiquetes
                 .Select(p => new TiquetesVM
                 {
                     Id = p.Id,
                     ProcesoVinculadoId = p.Id,
-                    Concepto = p.Codigo,
+                    ContratoId = p.Contrato != null ? p.Contrato.Id : 0,
+                    Concepto = p.Comentarios, // 👈 Usamos "Comentarios" como concepto
                     Valor = p.Valor,
                     Fecha = p.FechaSolicitud,
-                    Estado = p.Estado,
-                    AnticipoCodigo = p.Codigo,
-                    ContratoCodigo = p.Contrato.Codigo
+                    Estado = p.Estado
                 })
                 .ToListAsync();
 
@@ -41,60 +43,77 @@ namespace GestionAnticiposApp.Controllers
         }
 
         // GET: Tiquetes/Create
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create(int contratoId)
         {
-            ViewBag.Anticipos = await _context.ProcesosVinculados
+            // ✅ Traer anticipos SOLO del contrato actual
+            var anticipos = await _context.ProcesosVinculados
                 .Include(a => a.Contrato)
                 .Where(a => a.Tipo == TipoProcesoVinculado.Anticipo
-                         && a.Contrato.FechaFin >= DateTime.Now)
+                         && a.ContratoId == contratoId)
+                .Select(a => new
+                {
+                    a.Id,
+                    Codigo = $"{a.Codigo} | Valor: {a.Valor:C0} | Fecha: {a.FechaSolicitud:dd/MM/yyyy}"
+                })
                 .ToListAsync();
 
-            return View(new TiquetesVM());
+            ViewBag.Anticipos = new SelectList(anticipos, "Id", "Codigo");
+            ViewBag.ContratoId = contratoId;
+
+            return View(new TiquetesVM { ContratoId = contratoId });
         }
 
-        // POST: Tiquetes/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(TiquetesVM model)
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Anticipos = await _context.ProcesosVinculados
-                    .Include(a => a.Contrato)
+                var anticipos = await _context.ProcesosVinculados
                     .Where(a => a.Tipo == TipoProcesoVinculado.Anticipo
-                             && a.Contrato.FechaFin >= DateTime.Now)
+                             && a.ContratoId == model.ContratoId)
+                    .Select(a => new
+                    {
+                        a.Id,
+                        Codigo = $"{a.Codigo} | Valor: {a.Valor:C0} | Fecha: {a.FechaSolicitud:dd/MM/yyyy}"
+                    })
                     .ToListAsync();
+
+                ViewBag.Anticipos = new SelectList(anticipos, "Id", "Codigo", model.ProcesoVinculadoId);
+                ViewBag.ContratoId = model.ContratoId;
 
                 return View(model);
             }
 
+            // Buscar el anticipo relacionado
             var anticipo = await _context.ProcesosVinculados
                 .Include(p => p.Contrato)
                 .FirstOrDefaultAsync(p => p.Id == model.ProcesoVinculadoId);
 
-            if (anticipo == null || anticipo.Contrato.FechaFin < DateTime.Now)
+            if (anticipo == null || anticipo.ContratoId != model.ContratoId)
             {
-                ModelState.AddModelError("", "El anticipo o contrato no está vigente.");
+                ModelState.AddModelError("", "El anticipo no pertenece al contrato actual.");
                 return View(model);
             }
 
-            // Guardar tiquete como un nuevo proceso vinculado
+            // Crear el tiquete ligado al contrato
             var tiquete = new ProcesosVinculados
             {
                 Codigo = $"TQ-{DateTime.Now:yyyyMMddHHmmss}",
-                ContratoId = anticipo.ContratoId,
+                ContratoId = model.ContratoId,
                 Estado = "Pendiente",
                 FechaSolicitud = model.Fecha,
                 Funcionario = anticipo.Funcionario,
                 Autorizador = anticipo.Autorizador,
-                Tipo = TipoProcesoVinculado.Tiquete, // ✅ Enum
-                Valor = model.Valor
+                Tipo = TipoProcesoVinculado.Tiquete,
+                Valor = model.Valor,
+                Comentarios = model.Concepto
             };
 
             _context.ProcesosVinculados.Add(tiquete);
             await _context.SaveChangesAsync();
 
-            // Guardar documentos asociados
+            // Guardar documentos
             if (model.Archivos != null && model.Archivos.Count > 0)
             {
                 var uploads = Path.Combine(_env.WebRootPath, "uploads");
@@ -115,8 +134,8 @@ namespace GestionAnticiposApp.Controllers
 
                         var doc = new Documentos
                         {
-                            Archivo = $"/uploads/{file.FileName}", // ✅ Solo usamos Archivo
-                            ProcesoVinculadoId = tiquete.Id        // ✅ Relación con el tiquete
+                            Archivo = $"/uploads/{file.FileName}",
+                            ProcesoVinculadoId = tiquete.Id
                         };
 
                         _context.Documentos.Add(doc);
@@ -126,7 +145,8 @@ namespace GestionAnticiposApp.Controllers
                 await _context.SaveChangesAsync();
             }
 
-            return RedirectToAction(nameof(Index));
+            // ✅ redirigir de nuevo al contrato
+            return RedirectToAction("Details", "Contratos", new { id = model.ContratoId });
         }
 
         // GET: Tiquetes/Details/5
@@ -144,13 +164,14 @@ namespace GestionAnticiposApp.Controllers
             {
                 Id = tiquete.Id,
                 ProcesoVinculadoId = tiquete.Id,
-                Concepto = tiquete.Codigo,
+                Concepto = tiquete.Comentarios,
                 Valor = tiquete.Valor,
                 Fecha = tiquete.FechaSolicitud,
                 Estado = tiquete.Estado,
-                AnticipoCodigo = tiquete.Codigo,
-                ContratoCodigo = tiquete.Contrato.Codigo,
-                Documentos = tiquete.Documentos.Select(d => d.Archivo).ToList() // ✅ Solo Archivo
+                ContratoId = tiquete.ContratoId,
+                Documentos = tiquete.Documentos
+                    .Select(d => d.Archivo)
+                    .ToList()
             };
 
             return View(vm);

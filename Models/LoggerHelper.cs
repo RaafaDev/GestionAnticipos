@@ -37,11 +37,11 @@ public class LoggerHelper
         GuardarLog("Error", message);
     }
 
-    public void LogEdit(string usuario, string entidad, object id, string campo, string valorAntes, string valorDespues)
+    public void LogEdit(string usuario, string entidad, object id, string campo, string valorAntes, string valorDespues, int? procesoVinculadoId = null)
     {
         var message = $"el usuario: {usuario}, Entidad: {entidad}, ID: {id}, Campo: {campo}, Valor Antes: {valorAntes}, Valor Después: {valorDespues}";
         _logger.LogInformation(message);
-        GuardarLog("Edit", message, entidad, campo, valorAntes, valorDespues);
+        GuardarLog("Edit", message, entidad, campo, valorAntes, valorDespues, procesoVinculadoId);
     }
 
     public void LogEntityChanges<T>(T original, T modificado)
@@ -50,6 +50,10 @@ public class LoggerHelper
         var entidad = typeof(T).Name;
         var idProp = typeof(T).GetProperty("Id");
         var id = idProp != null ? idProp.GetValue(modificado) : null;
+
+        int? procesoVinculadoId = null;
+        if (modificado is ProcesosVinculados pv)
+            procesoVinculadoId = pv.Id;
 
         foreach (var prop in typeof(T).GetProperties())
         {
@@ -68,13 +72,21 @@ public class LoggerHelper
                     entidad: entidad,
                     campo: prop.Name,
                     valorAntes: valorAntes,
-                    valorDespues: valorDespues
+                    valorDespues: valorDespues,
+                    procesoVinculadoId: procesoVinculadoId
                 );
             }
         }
     }
 
-    private void GuardarLog(string nivel, string mensaje, string? entidad = null, string? campo = null, string? valorAntes = null, string? valorDespues = null)
+    private void GuardarLog(
+        string nivel,
+        string mensaje,
+        string? entidad = null,
+        string? campo = null,
+        string? valorAntes = null,
+        string? valorDespues = null,
+        int? procesoVinculadoId = null)
     {
         var usuario = _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "Desconocido";
         var log = new Log
@@ -86,7 +98,8 @@ public class LoggerHelper
             Entidad = entidad,
             Campo = campo,
             ValorAntes = valorAntes,
-            ValorDespues = valorDespues
+            ValorDespues = valorDespues,
+            ProcesoVinculadoId = procesoVinculadoId
         };
         _dbContext.Logs.Add(log);
         _dbContext.SaveChanges();

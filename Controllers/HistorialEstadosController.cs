@@ -18,11 +18,19 @@ namespace GestionAnticiposApp.Controllers
 
         public async Task<IActionResult> Index(int pageIndex = 1)
         {
-            int pageSize = 5; // Puedes ajustar el tamaño de página
+            int pageSize = 5;
             var logsQuery = _context.Logs
-                .Where (l =>l.Nivel == "Edit" && l.Campo == "Estado") .OrderByDescending(l => l.Fecha);
+                .Include(l => l.ProcesoVinculado)
+                .Where(l =>
+                    l.Campo == "Estado" &&
+                    l.ProcesoVinculado.Tipo == 0 // Solo anticipos
+                )
+                .OrderByDescending(l => l.Fecha);
+
             var paginatedLogs = await PaginatedList<Log>.CreateAsync(logsQuery, pageIndex, pageSize);
             return View(paginatedLogs);
         }
     }
 }
+
+//.Nivel == "Edit" &&

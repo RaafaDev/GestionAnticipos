@@ -2,8 +2,8 @@
 
 <h2>Detalles del Tiquete</h2>
 
-<p><b>Anticipo:</b> @Model.AnticipoCodigo</p>
-<p><b>Contrato:</b> @Model.ContratoCodigo</p>
+<p><b>Anticipo:</b> @Model.ProcesoVinculadoId</p>
+<p><b>Contrato:</b> @Model.ContratoId</p>
 <p><b>Concepto:</b> @Model.Concepto</p>
 <p><b>Valor:</b> @Model.Valor</p>
 <p><b>Fecha:</b> @Model.Fecha.ToShortDateString()</p>
@@ -11,7 +11,7 @@
 
 <h4>Documentos</h4>
 <ul>
-    @foreach (var doc in Model.Documentos)
+    @foreach (var doc in Model.Archivos)
     {
         <li><a href="@doc" target="_blank">@doc</a></li>
     }
