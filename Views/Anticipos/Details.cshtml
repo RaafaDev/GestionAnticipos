@@ -1,8 +1,314 @@
 ﻿@model GestionAnticiposApp.Models.ViewModels.AnticipoVM
-
 @{
     ViewData["Title"] = "Detalles del Anticipo";
 }
+
+<style>
+    :root {
+        --azul-oscuro: #0C1E5B;
+        --azul-medio: #1a3bb3;
+        --azul-claro: #f0f4ff;
+        --amarillo: #FFD700;
+        --amarillo-oscuro: #e6c300;
+        --blanco: #ffffff;
+        --gris-claro: #f8f9fa;
+        --gris-medio: #e9ecef;
+        --verde: #28a745;
+        --rojo: #dc3545;
+        --texto-oscuro: #333;
+        --sombra: rgba(12, 30, 91, 0.15);
+        --borde: #e1e5ee;
+    }
+
+    /* body {
+        background: linear-gradient(135deg, var(--azul-claro) 0%, #e6eaff 100%);
+        min-height: 100vh;
+        padding: 0px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    } */
+
+    .anticipos-container {
+        background: var(--blanco);
+        border-radius: 16px;
+        box-shadow: 0 10px 40px rgba(12, 30, 91, 0.2);
+        padding: 40px;
+        margin: 30px auto;
+        max-width: 900px;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+
+        .anticipos-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--amarillo), var(--azul-oscuro));
+            border-radius: 8px 8px 0 0;
+        }
+
+    .page-title {
+        color: var(--azul-oscuro);
+        font-weight: 700;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid var(--amarillo);
+        text-align: center;
+        font-size: 2.2rem;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .table-container {
+        overflow-x: auto;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(12, 30, 91, 0.15);
+        margin-bottom: 30px;
+        background-color: var(--blanco);
+    }
+
+    .custom-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background-color: var(--blanco);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+        .custom-table th {
+            background: linear-gradient(135deg, var(--azul-oscuro) 0%, var(--azul-medio) 100%);
+            color: var(--blanco);
+            padding: 16px 20px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 3px solid var(--amarillo);
+            font-size: 1.1rem;
+            width: 30%;
+        }
+
+        .custom-table td {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--gris-medio);
+            vertical-align: middle;
+            font-size: 1rem;
+            background-color: var(--gris-claro);
+        }
+
+        .custom-table tr:last-child td {
+            border-bottom: none;
+        }
+
+    .valor-cell {
+        font-weight: 700;
+        color: var(--azul-oscuro);
+        font-size: 1.1rem;
+    }
+
+    .btn-secondary {
+        background: linear-gradient(135deg, var(--gris-claro) 0%, var(--gris-medio) 100%);
+        color: var(--azul-oscuro);
+        border: 2px solid var(--borde);
+        border-radius: 10px;
+        padding: 14px 30px;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        margin-top: 20px;
+    }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, var(--gris-medio) 0%, #dde1e6 100%);
+            color: var(--azul-oscuro);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
+            text-decoration: none;
+            border-color: var(--amarillo);
+        }
+
+        .btn-secondary i {
+            margin-right: 10px;
+        }
+
+    .historial-section {
+        background: var(--blanco);
+        border-radius: 16px;
+        box-shadow: 0 10px 40px rgba(12, 30, 91, 0.2);
+        padding: 30px;
+        margin: 30px auto;
+        max-width: 900px;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+
+        .historial-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--verde), var(--azul-oscuro));
+            border-radius: 8px 8px 0 0;
+        }
+
+    .historial-title {
+        color: var(--azul-oscuro);
+        font-weight: 700;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid var(--verde);
+        text-align: center;
+        font-size: 1.8rem;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .historial-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background-color: var(--blanco);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(12, 30, 91, 0.1);
+    }
+
+        .historial-table thead {
+            background: linear-gradient(135deg, var(--azul-oscuro) 0%, var(--azul-medio) 100%);
+            color: var(--blanco);
+        }
+
+        .historial-table th {
+            padding: 16px 14px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 3px solid var(--amarillo);
+            font-size: 1rem;
+        }
+
+        .historial-table td {
+            padding: 14px;
+            border-bottom: 1px solid var(--gris-medio);
+            vertical-align: middle;
+            font-size: 0.95rem;
+        }
+
+        .historial-table tbody tr {
+            transition: background-color 0.2s;
+        }
+
+            .historial-table tbody tr:hover {
+                background-color: rgba(12, 30, 91, 0.05);
+            }
+
+            .historial-table tbody tr:nth-child(even) {
+                background-color: var(--gris-claro);
+            }
+
+                .historial-table tbody tr:nth-child(even):hover {
+                    background-color: rgba(12, 30, 91, 0.08);
+                }
+
+    .no-historial {
+        text-align: center;
+        padding: 30px;
+        color: var(--azul-medio);
+        font-size: 1.1rem;
+        background-color: var(--gris-claro);
+        border-radius: 12px;
+        margin: 20px 0;
+    }
+
+    .estado-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    .estado-pendiente {
+        background-color: rgba(255, 193, 7, 0.15);
+        color: #ffc107;
+        border: 1px solid rgba(255, 193, 7, 0.3);
+    }
+
+    .estado-aprobado {
+        background-color: rgba(40, 167, 69, 0.15);
+        color: var(--verde);
+        border: 1px solid rgba(40, 167, 69, 0.3);
+    }
+
+    .estado-rechazado {
+        background-color: rgba(220, 53, 69, 0.15);
+        color: var(--rojo);
+        border: 1px solid rgba(220, 53, 69, 0.3);
+    }
+
+    .estado-cerrado {
+        background-color: rgba(108, 117, 125, 0.15);
+        color: #6c757d;
+        border: 1px solid rgba(108, 117, 125, 0.3);
+    }
+
+    .button-container {
+        text-align: center;
+        margin-top: 25px;
+    }
+
+    @@media (max-width: 768px) {
+        .anticipos-container, .historial-section {
+            padding: 20px;
+            margin: 20px 10px;
+        }
+
+        .custom-table th,
+        .custom-table td {
+            padding: 12px 15px;
+        }
+
+        .page-title, .historial-title {
+            font-size: 1.6rem;
+        }
+
+        .historial-table {
+            font-size: 0.9rem;
+        }
+
+            .historial-table th,
+            .historial-table td {
+                padding: 10px 8px;
+            }
+    }
+
+    /* Animaciones */
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .anticipos-container {
+        animation: fadeIn 0.6s ease-out;
+    }
+
+    .historial-section {
+        animation: fadeIn 0.8s ease-out;
+    }
+</style>
 
 <div class="anticipos-container">
     <h1 class="page-title">Detalles del Anticipo</h1>
@@ -16,7 +322,15 @@
                 </tr>
                 <tr>
                     <th>Estado</th>
-                    <td>@Model.Estado</td>
+                    <td>
+                        <span class="estado-badge
+                            @(Model.Estado.ToLower().Contains("pendiente") ? "estado-pendiente" : "")
+                            @(Model.Estado.ToLower().Contains("aprobado") ? "estado-aprobado" : "")
+                            @(Model.Estado.ToLower().Contains("rechazado") ? "estado-rechazado" : "")
+                            @(Model.Estado.ToLower().Contains("cerrado") ? "estado-cerrado" : "")">
+                            @Model.Estado
+                        </span>
+                    </td>
                 </tr>
                 <tr>
                     <th>Fecha Solicitud</th>
@@ -28,10 +342,9 @@
                 </tr>
                 <tr>
                     <th>Comentarios</th>
-                    <td>@Model.Comentarios</td>
+                    <td>@(string.IsNullOrEmpty(Model.Comentarios) ? "Sin comentarios" : Model.Comentarios)</td>
                 </tr>
                 <tr>
-
                     <th>Funcionario</th>
                     <td>@Model.Funcionario</td>
                 </tr>
@@ -39,10 +352,11 @@
         </table>
     </div>
 
-    <a asp-action="Details" asp-controller="Contratos" asp-route-id="@ViewBag.ContratoId" class="btn btn-secondary">
-        Volver al Contrato
-    </a>
-
+    <div class="button-container">
+        <a asp-action="Details" asp-controller="Contratos" asp-route-id="@ViewBag.ContratoId" class="btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver al Contrato
+        </a>
+    </div>
 </div>
 
 @{
@@ -51,34 +365,48 @@
 
 @if (historial != null && historial.Any())
 {
-    <h2>Historial de Cambios de Estado</h2>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Usuario</th>
-				<th>Codigo</th>
-                <th>Valor Antes</th>
-                <th>Valor Después</th>
-                <th>Fecha</th>
+    <div class="historial-section">
+        <h2 class="historial-title">Historial de Cambios de Estado</h2>
 
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var log in historial)
-            {
-                <tr>
-                    <td>@log.Usuario</td>
-                    <td>@log.ProcesoVinculado.Codigo</td>
-                    <td>@log.ValorAntes</td>
-                    <td>@log.ValorDespues</td>
-                    <td>@log.Fecha.ToString("g")</td>
-
-                </tr>
-            }
-        </tbody>
-    </table>
+        <div class="table-container">
+            <table class="historial-table">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Código</th>
+                        <th>Valor Antes</th>
+                        <th>Valor Después</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var log in historial)
+                    {
+                        <tr>
+                            <td>@log.Usuario</td>
+                            <td>@log.ProcesoVinculado.Codigo</td>
+                            <td>@log.ValorAntes</td>
+                            <td>@log.ValorDespues</td>
+                            <td>@log.Fecha.ToString("g")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 }
 else
 {
-    <p>No hay historial de cambios de estado para este anticipo.</p>
+    <div class="historial-section">
+        <h2 class="historial-title">Historial de Cambios de Estado</h2>
+        <div class="no-historial">
+            <i class="fas fa-history" style="font-size: 2rem; margin-bottom: 15px;"></i>
+            <p>No hay historial de cambios de estado para este anticipo.</p>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <!-- Font Awesome para iconos -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 }
