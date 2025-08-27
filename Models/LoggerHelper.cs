@@ -25,37 +25,25 @@ public class LoggerHelper
         GuardarLog("Info", message);
     }
 
-    private void GuardarLog(string nivel, string mensaje, string? entidad = null, string? campo = null, string? valorAntes = null, string? valorDespues = null)
+    public void LogWarning(string message)
     {
-        var usuario = _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "Desconocido";
-        var log = new Log
-        {
-            Fecha = DateTime.Now,
-            Usuario = usuario,
-            Nivel = nivel,
-            Mensaje = mensaje,
-            Entidad = entidad,
-            Campo = campo,
-            ValorAntes = valorAntes,
-            ValorDespues = valorDespues
-        };
-        _dbContext.Logs.Add(log);
-        _dbContext.SaveChanges(); // <--- Esto es clave
+        _logger.LogWarning(message);
+        GuardarLog("Warning", message);
+    }
+
+    public void LogError(string message)
+    {
+        _logger.LogError(message);
+        GuardarLog("Error", message);
     }
 
     public void LogEdit(string usuario, string entidad, object id, string campo, string valorAntes, string valorDespues)
     {
         var message = $"el usuario: {usuario}, Entidad: {entidad}, ID: {id}, Campo: {campo}, Valor Antes: {valorAntes}, Valor Después: {valorDespues}";
         _logger.LogInformation(message);
+        GuardarLog("Edit", message, entidad, campo, valorAntes, valorDespues);
     }
-    public void LogWarning(string message)
-    {
-        _logger.LogWarning(message);
-    }
-    public void LogError(string message)
-    {
-        _logger.LogError(message);
-    }
+
     public void LogEntityChanges<T>(T original, T modificado)
     {
         var usuario = _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "Desconocido";
@@ -76,7 +64,7 @@ public class LoggerHelper
             {
                 GuardarLog(
                     nivel: "Edit",
-                    mensaje: $"El usuario {usuario} Cambió en {entidad}.{prop.Name} de '{valorAntes}' a '{valorDespues}'",
+                    mensaje: $"El usuario {usuario} cambió en {entidad}.{prop.Name} de '{valorAntes}' a '{valorDespues}'",
                     entidad: entidad,
                     campo: prop.Name,
                     valorAntes: valorAntes,
@@ -84,6 +72,24 @@ public class LoggerHelper
                 );
             }
         }
+    }
+
+    private void GuardarLog(string nivel, string mensaje, string? entidad = null, string? campo = null, string? valorAntes = null, string? valorDespues = null)
+    {
+        var usuario = _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "Desconocido";
+        var log = new Log
+        {
+            Fecha = DateTime.Now,
+            Usuario = usuario,
+            Nivel = nivel,
+            Mensaje = mensaje,
+            Entidad = entidad,
+            Campo = campo,
+            ValorAntes = valorAntes,
+            ValorDespues = valorDespues
+        };
+        _dbContext.Logs.Add(log);
+        _dbContext.SaveChanges();
     }
 }
 
