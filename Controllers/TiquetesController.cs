@@ -1,8 +1,9 @@
 ﻿using GestionAnticipos.Data;
 using GestionAnticiposApp.Data;
-using GestionAnticiposApp.ViewModels;
 using GestionAnticiposApp.Models; // 👈 Importar namespace del enum y modelos
+using GestionAnticiposApp.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace GestionAnticiposApp.Controllers
@@ -39,15 +40,20 @@ namespace GestionAnticiposApp.Controllers
 
             return View(tiquetes);
         }
-
-        // GET: Tiquetes/Create
         public async Task<IActionResult> Create()
         {
-            ViewBag.Anticipos = await _context.ProcesosVinculados
+            var anticipos = await _context.ProcesosVinculados
                 .Include(a => a.Contrato)
                 .Where(a => a.Tipo == TipoProcesoVinculado.Anticipo
-                         && a.Contrato.FechaFin >= DateTime.Now)
+                         && !string.IsNullOrEmpty(a.Contrato.Empresa)) // 👈 filtra por nombre
+                .Select(a => new
+                {
+                    a.Id,
+                    Codigo = $"{a.Codigo}       {a.Contrato.Empresa}  | Valor: {a.Valor:C0}    Fecha: {a.FechaSolicitud:dd/MM/yyyy}"
+                })
                 .ToListAsync();
+
+            ViewBag.Anticipos = new SelectList(anticipos, "Id", "Codigo");
 
             return View(new TiquetesVM());
         }
@@ -59,11 +65,19 @@ namespace GestionAnticiposApp.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Anticipos = await _context.ProcesosVinculados
+                var anticipos = await _context.ProcesosVinculados
                     .Include(a => a.Contrato)
                     .Where(a => a.Tipo == TipoProcesoVinculado.Anticipo
-                             && a.Contrato.FechaFin >= DateTime.Now)
+                             && a.Contrato.FechaInicio >= DateTime.Now)
+                    .Select(a => new
+                    {
+                        a.Id,
+                        Codigo = $"{a.Codigo} | Valor: {a.Valor:C0} | Fecha: {a.FechaSolicitud:dd/MM/yyyy}"
+                    })
                     .ToListAsync();
+
+                // ✅ mantener seleccionado el valor previo
+                ViewBag.Anticipos = new SelectList(anticipos, "Id", "Codigo", model.ProcesoVinculadoId);
 
                 return View(model);
             }
@@ -72,12 +86,25 @@ namespace GestionAnticiposApp.Controllers
                 .Include(p => p.Contrato)
                 .FirstOrDefaultAsync(p => p.Id == model.ProcesoVinculadoId);
 
-            if (anticipo == null || anticipo.Contrato.FechaFin < DateTime.Now)
+            if (anticipo == null || anticipo.Contrato.FechaInicio < DateTime.Now)
             {
                 ModelState.AddModelError("", "El anticipo o contrato no está vigente.");
+
+                var anticipos = await _context.ProcesosVinculados
+                    .Include(a => a.Contrato)
+                    .Where(a => a.Tipo == TipoProcesoVinculado.Anticipo
+                             && a.Contrato.FechaInicio >= DateTime.Now)
+                    .Select(a => new
+                    {
+                        a.Id,
+                        Codigo = $"{a.Codigo} | Valor: {a.Valor:C0} | Fecha: {a.FechaSolicitud:dd/MM/yyyy}"
+                    })
+                    .ToListAsync();
+
+                ViewBag.Anticipos = new SelectList(anticipos, "Id", "Codigo", model.ProcesoVinculadoId);
+
                 return View(model);
             }
-
             // Guardar tiquete como un nuevo proceso vinculado
             var tiquete = new ProcesosVinculados
             {
@@ -87,8 +114,9 @@ namespace GestionAnticiposApp.Controllers
                 FechaSolicitud = model.Fecha,
                 Funcionario = anticipo.Funcionario,
                 Autorizador = anticipo.Autorizador,
-                Tipo = TipoProcesoVinculado.Tiquete, // ✅ Enum
+                Tipo = TipoProcesoVinculado.Tiquete,
                 Valor = model.Valor
+                
             };
 
             _context.ProcesosVinculados.Add(tiquete);
