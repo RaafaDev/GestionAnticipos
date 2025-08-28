@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity;
 
 namespace GestionAnticiposApp.Controllers
 {
@@ -152,31 +153,32 @@ namespace GestionAnticiposApp.Controllers
         }
 
         // GET: Tiquetes/Details/5
-        public async Task<IActionResult> Details(int id)
-        {
-            var tiquete = await _context.ProcesosVinculados
-                .Include(p => p.Contrato)
-                .Include(p => p.Documentos)
-                .FirstOrDefaultAsync(p => p.Id == id && p.Tipo == TipoProcesoVinculado.Tiquete);
+       public async Task<IActionResult> Details(int? id)
+{
+    if (id == null) return NotFound();
 
-            if (tiquete == null)
-                return NotFound();
+    var tiquete = await _context.ProcesosVinculados
+        .Include(p => p.Contrato)
+        .Include(p => p.Documentos)
+        .FirstOrDefaultAsync(p => p.Id == id && p.Tipo == TipoProcesoVinculado.Tiquete);
 
-            var vm = new TiquetesVM
-            {
-                Id = tiquete.Id,
-                ProcesoVinculadoId = tiquete.Id,
-                Concepto = tiquete.Comentarios,
-                Valor = tiquete.Valor,
-                Fecha = tiquete.FechaSolicitud,
-                Estado = tiquete.Estado,
-                ContratoId = tiquete.ContratoId,
-                Documentos = tiquete.Documentos
-                    .Select(d => d.Archivo)
-                    .ToList()
-            };
+    if (tiquete == null) return NotFound();
 
-            return View(vm);
-        }
+    var vm = new TiquetesVM
+    {
+        Id = tiquete.Id,
+        ProcesoVinculadoId = tiquete.Id,
+        ContratoId = tiquete.ContratoId,
+        Concepto = tiquete.Comentarios ?? "",
+        Valor = tiquete.Valor,
+        Fecha = tiquete.FechaSolicitud,
+        Estado = tiquete.Estado,
+        Documentos = tiquete.Documentos
+            .Select(d => d.Archivo) // 👈 usamos Archivo
+            .ToList()
+    };
+
+    return View(vm);
+}
     }
 }
