@@ -254,7 +254,7 @@ namespace GestionAnticiposApp.Controllers
 
                         var nuevoDocumento = new Documentos
                         {
-                            Archivo = "/uploads/" + fileName,
+                            Archivo = file.FileName,
                             ProcesoVinculadoId = entity.Id
                         };
 

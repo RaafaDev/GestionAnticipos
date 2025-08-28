@@ -262,6 +262,8 @@
     </style>
 </head>
 <body>
+    @if (SignInManager.IsSignedIn(User))
+    {
     <!-- Navbar Superior -->
     <div class="top-navbar">
         <div class="menu-btn" id="menuBtn">
@@ -302,29 +304,33 @@
             }
         </div>
     </div>
+    }
 
     <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-        <ul>
-            <li><a href="/Home/Index"><i class="bi bi-house-door-fill"></i> Inicio</a></li>
-            <li><a asp href="/Contratos"><i class="bi bi-info-circle-fill"></i> Usuarios</a></li>
-            <li><a asp-controller="Contratos" asp-action="Index"><i class="bi bi-people-fill"></i> Contratos</a></li>
-            <li><a asp-controller="Anticipos" asp-action="Index"><i class="bi bi-gear-fill"></i> Anticipos</a></li>
-            <li><a asp-controller="Tiquetes" asp-action="Index"><i class="bi bi-envelope-fill"></i> Tiquetes</a></li>
-            <li><a asp-controller="ProcesosVinculados" asp-action="Index"><i class="bi bi-briefcase-fill"></i> Legalizaciones</a></li>
-            <li><a asp-controller="HistorialEstados" asp-action="Index"><i class="bi bi-briefcase-fill"></i> Historial Estados</a></li>
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <div class="sidebar" id="sidebar">
+            <ul>
+                <li><a href="/Home/Index"><i class="bi bi-house-door-fill"></i> Inicio</a></li>
+                <li><a asp href="/Contratos"><i class="bi bi-info-circle-fill"></i> Usuarios</a></li>
+                <li><a asp-controller="Contratos" asp-action="Index"><i class="bi bi-people-fill"></i> Contratos</a></li>
+                <li><a asp-controller="Anticipos" asp-action="Index"><i class="bi bi-gear-fill"></i> Anticipos</a></li>
+                <li><a asp-controller="Tiquetes" asp-action="Index"><i class="bi bi-envelope-fill"></i> Tiquetes</a></li>
+                <li><a asp-controller="ProcesosVinculados" asp-action="Index"><i class="bi bi-briefcase-fill"></i> Legalizaciones</a></li>
+                <li><a asp-controller="HistorialEstados" asp-action="Index"><i class="bi bi-briefcase-fill"></i> Historial Estados</a></li>
 
 
-            @if (SignInManager.IsSignedIn(User) && User.IsInRole("Admin"))
-            {
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Roles" asp-action="Index">
-                        <i class="bi bi-shield-lock"></i> Gestión Roles
-                    </a>
-                </li>
-            }
-        </ul>
-    </div>
+                @if (SignInManager.IsSignedIn(User) && User.IsInRole("Admin"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Roles" asp-action="Index">
+                            <i class="bi bi-shield-lock"></i> Gestión Usuarios
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
+    }
 
     <!-- Contenido principal -->
     <div class="main-content" id="mainContent">
@@ -332,10 +338,13 @@
     </div>
 
     <!-- Footer -->
-    <footer>
-        &copy; 2025 - GestionAnticiposApp -
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <footer>
+            &copy; 2025 - GestionAnticiposApp -
         <a asp-area="" asp-controller="Home" asp-action="Privacy">Política de Privacidad</a>
     </footer>
+    }
 
     <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
