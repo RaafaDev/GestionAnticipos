@@ -184,40 +184,40 @@ namespace GestionAnticiposApp.Controllers
         }
 
         // GET: Tiquetes/Details/5
-       public async Task<IActionResult> Details(int? id)
-{
-    if (id == null) return NotFound();
 
-    var tiquete = await _context.ProcesosVinculados
-        .Include(p => p.Contrato)
-        .Include(p => p.Documentos)
-        .FirstOrDefaultAsync(p => p.Id == id && p.Tipo == TipoProcesoVinculado.Tiquete);
-        public async Task<IActionResult> Details(int id)
+        public async Task<IActionResult> Details(int? id)
         {
-            _loggerHelper.LogInfo($"Ingreso a la vista de detalles de tiquete {id} por usuario {User.Identity.Name}");
+            {
+                if (id == null) return NotFound();
 
-            var tiquete = await _context.ProcesosVinculados
-                .Include(p => p.Contrato)
-                .Include(p => p.Documentos)
-                .FirstOrDefaultAsync(p => p.Id == id && p.Tipo == TipoProcesoVinculado.Tiquete);
+                var tiquete = await _context.ProcesosVinculados
+                    .Include(p => p.Contrato)
+                    .Include(p => p.Documentos)
+                    .FirstOrDefaultAsync(p => p.Id == id && p.Tipo == TipoProcesoVinculado.Tiquete);
 
-    if (tiquete == null) return NotFound();
+                _loggerHelper.LogInfo($"Ingreso a la vista de detalles de tiquete {id} por usuario {User.Identity.Name}");
 
-    var vm = new TiquetesVM
-    {
-        Id = tiquete.Id,
-        ProcesoVinculadoId = tiquete.Id,
-        ContratoId = tiquete.ContratoId,
-        Concepto = tiquete.Comentarios ?? "",
-        Valor = tiquete.Valor,
-        Fecha = tiquete.FechaSolicitud,
-        Estado = tiquete.Estado,
-        Documentos = tiquete.Documentos
-            .Select(d => d.Archivo) // 👈 usamos Archivo
-            .ToList()
-    };
 
-            return View(vm);
+
+                if (tiquete == null) return NotFound();
+
+
+                var vm = new TiquetesVM
+                {
+                    Id = tiquete.Id,
+                    ProcesoVinculadoId = tiquete.Id,
+                    ContratoId = tiquete.ContratoId,
+                    Concepto = tiquete.Comentarios ?? "",
+                    Valor = tiquete.Valor,
+                    Fecha = tiquete.FechaSolicitud,
+                    Estado = tiquete.Estado,
+                    Documentos = tiquete.Documentos
+                        .Select(d => d.Archivo) // 👈 usamos Archivo
+                        .ToList()
+                };
+
+                return View(vm);
+            }
         }
 
         // GET: Tiquetes/Edit/5
