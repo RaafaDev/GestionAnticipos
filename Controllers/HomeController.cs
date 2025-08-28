@@ -2,20 +2,22 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using GestionAnticiposApp.Models;
 using Microsoft.AspNetCore.Authorization;
+using GestionAnticipos.Models; // ?? Importa el namespace de LoggerHelper
 
 namespace GestionAnticiposApp.Controllers;
 [Authorize]
 public class HomeController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
+    private readonly LoggerHelper _loggerHelper;
 
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(LoggerHelper loggerHelper)
     {
-        _logger = logger;
+        _loggerHelper = loggerHelper;
     }
 
     public IActionResult Index()
     {
+        _loggerHelper.LogInfo($"Ingreso a la vista principal por usuario {User.Identity?.Name ?? "Anónimo"}");
         return View();
     }
 

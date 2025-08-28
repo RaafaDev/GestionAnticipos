@@ -12,27 +12,49 @@ namespace GestionAnticiposApp.Controllers
     public class HistorialEstadosController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly LoggerHelper _loggerHelper;
 
-        public HistorialEstadosController(ApplicationDbContext context)
+        public HistorialEstadosController(ApplicationDbContext context, LoggerHelper loggerHelper)
         {
             _context = context;
+            _loggerHelper = loggerHelper;
         }
 
-        public async Task<IActionResult> Index(int pageIndex = 1)
+        // GET: HistorialEstados
+        public async Task<IActionResult> Index(string searchCodigo, int pageIndex = 1, int pageSize = 10)
         {
-            int pageSize = 5;
-            var logsQuery = _context.Logs
-                .Include(l => l.ProcesoVinculado)
-                .Where(l =>
-                    l.Campo == "Estado" &&
-                    l.ProcesoVinculado.Tipo == 0 // Solo anticipos
-                )
-                .OrderByDescending(l => l.Fecha);
+            _loggerHelper.LogInfo($"Ingreso a la vista de historial de estados por usuario {User.Identity.Name}");
 
-            var paginatedLogs = await PaginatedList<Log>.CreateAsync(logsQuery, pageIndex, pageSize);
-            return View(paginatedLogs);
+            var query = _context.Logs
+                .Include(l => l.ProcesoVinculado)
+                .Where(l => l.Campo == "Estado") 
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchCodigo))
+            {
+                query = query.Where(l => l.ProcesoVinculado.Codigo.Contains(searchCodigo));
+                _loggerHelper.LogInfo($"Búsqueda en historial de estados por código: {searchCodigo} por usuario {User.Identity.Name}");
+            }
+
+            var paginatedList = await PaginatedList<Log>.CreateAsync(query.OrderByDescending(l => l.Fecha), pageIndex, pageSize);
+
+            ViewData["searchCodigo"] = searchCodigo;
+            return View(paginatedList);
+        }
+
+        // GET: HistorialEstados/Details/5
+        public async Task<IActionResult> Details(int id)
+        {
+            _loggerHelper.LogInfo($"Ingreso a la vista de detalles de historial de estado {id} por usuario {User.Identity.Name}");
+
+            var log = await _context.Logs
+                .Include(l => l.ProcesoVinculado)
+                .FirstOrDefaultAsync(l => l.Id == id);
+
+            if (log == null)
+                return NotFound();
+
+            return View(log);
         }
     }
 }
-
-//.Nivel == "Edit" &&

@@ -24,10 +24,11 @@ namespace GestionAnticiposApp.Controllers
         // GET: Anticipos
         public async Task<IActionResult> Index(string? FechaSolicitud, string? Estado, string? Codigo, int pageIndex = 1)
         {
-            int pageSize = 2;
+            int pageSize = 5;
 
             var query = _context.ProcesosVinculados
                 .Include(p => p.Contrato)
+                .Where(l => l.Tipo == 0) 
                 .AsQueryable();
 
             if (!string.IsNullOrEmpty(FechaSolicitud))
@@ -54,7 +55,7 @@ namespace GestionAnticiposApp.Controllers
 
             var paginatedList = await PaginatedList<ProcesosVinculados>.CreateAsync(query.AsNoTracking(), pageIndex, pageSize);
 
-            _loggerHelper.LogInfo($"El usuario {User.Identity?.Name ?? "Desconocido"} accedió al listado de anticipos.");
+            _loggerHelper.LogInfo($"El usuario {User.Identity?.Name ?? "Desconocido"} accedió al listado de anticipos en la pagina {pageIndex}.");
 
             return View(paginatedList);
         }
