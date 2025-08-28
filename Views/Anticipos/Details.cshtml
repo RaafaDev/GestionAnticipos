@@ -358,10 +358,31 @@
             <ul class="documentos-list">
                 @foreach (var doc in Model.Documentos)
                 {
+                    var extension = System.IO.Path.GetExtension(doc).ToLower();
+                    var icono = "";
+
+                    switch (extension)
+                    {
+                        case ".pdf":
+                            icono = "fa-solid fa-file-pdf text-danger"; break;
+                        case ".doc":
+                        case ".docx":
+                            icono = "fa-solid fa-file-word text-primary"; break;
+                        case ".xls":
+                        case ".xlsx":
+                            icono = "fa-solid fa-file-excel text-success"; break;
+                        case ".jpg":
+                        case ".jpeg":
+                        case ".png":
+                            icono = "fa-solid fa-file-image text-warning"; break;
+                        default:
+                            icono = "fa-solid fa-file text-secondary"; break;
+                    }
+
                     <li>
-                        <a href="@doc.Archivo" target="_blank" download>
-                         
-                            @doc.Archivo
+                        <a href="@doc" target="_blank" download class="text-decoration-none">
+                            <i class="@icono fa-lg"></i>
+                            @System.IO.Path.GetFileName(doc)   @* 👈 solo el nombre del archivo *@
                         </a>
                     </li>
                 }

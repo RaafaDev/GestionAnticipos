@@ -9,10 +9,36 @@
 <p><b>Fecha:</b> @Model.Fecha.ToShortDateString()</p>
 <p><b>Estado:</b> @Model.Estado</p>
 
-<h4>Documentos</h4>
+<h4>Documentos Vinculados</h4>
 <ul>
-    @foreach (var doc in Model.Archivos)
+    @foreach (var doc in Model.Documentos)
     {
-        <li><a href="@doc" target="_blank">@doc</a></li>
+        var extension = System.IO.Path.GetExtension(doc).ToLower();
+        var icono = "";
+
+        switch (extension)
+        {
+            case ".pdf":
+                icono = "fa-solid fa-file-pdf text-danger"; break;
+            case ".doc":
+            case ".docx":
+                icono = "fa-solid fa-file-word text-primary"; break;
+            case ".xls":
+            case ".xlsx":
+                icono = "fa-solid fa-file-excel text-success"; break;
+            case ".jpg":
+            case ".jpeg":
+            case ".png":
+                icono = "fa-solid fa-file-image text-warning"; break;
+            default:
+                icono = "fa-solid fa-file text-secondary"; break;
+        }
+
+        <li>
+            <a href="@Url.Content(doc)" target="_blank" class="text-decoration-none">
+                <i class="@icono fa-2x"></i>
+                @System.IO.Path.GetFileName(doc)  @* Muestra el nombre del archivo *@
+            </a>
+        </li>
     }
 </ul>
