@@ -76,58 +76,23 @@ namespace GestionAnticiposApp.Controllers
 
             _loggerHelper.LogInfo($"El usuario {User.Identity?.Name ?? "Desconocido"} accedió a los detalles del anticipo con Id: {id}.");
 
-            // Consulta de historial de cambios de estado para este anticipo
             var historialEstado = await _context.Logs
                 .Where(l => l.Nivel == "Edit" && l.Campo == "Estado" && l.ProcesoVinculadoId == id)
                 .OrderByDescending(l => l.Fecha)
                 .ToListAsync();
 
             var vm = MapToVM(entity);
-            vm.Documentos = entity.Documentos.OrderBy(d => d.Id).ToList();
+
+            // 👇 importante: pasamos solo los nombres/rutas de archivo
+            vm.Documentos = entity.Documentos
+                .OrderBy(d => d.Id)
+                .Select(d => d.Archivo) // Archivo es string en tu modelo
+                .ToList();
+
             ViewBag.ContratoId = entity.ContratoId;
             ViewBag.HistorialEstado = historialEstado;
 
             return View(vm);
-        }
-
-
-
-        // ===============================
-        // MÉTODOS PRIVADOS DE MAPEADO
-        // ===============================
-        private ProcesosVinculados MapToEntity(AnticipoVM vm, int contratoId)
-        {
-            return new ProcesosVinculados
-            {
-                Id = vm.Id,
-                Codigo = vm.Codigo,
-                Estado = vm.Estado,
-                FechaSolicitud = vm.FechaSolicitud,
-                Valor = vm.Valor,
-                Tipo = 0,               // fijo
-                ContratoId = contratoId,
-                Funcionario = User.Identity?.Name ?? "Desconocido",
-                Autorizador = "" ,                // lo puedes rellenar luego si aplica
-                Comentarios = vm.Comentarios
-            };
-        }
-
-        private AnticipoVM MapToVM(ProcesosVinculados entity)
-        {
-            ViewData["FechaSolicitud"] = entity.FechaSolicitud;
-            ViewData["CodigoContra"] = entity.Codigo;
-            ViewData["Estado"] = entity.Estado;
-            return new AnticipoVM
-            {
-                Id = entity.Id,
-                Codigo = entity.Codigo,
-                Estado = entity.Estado,
-                FechaSolicitud = entity.FechaSolicitud,
-                Valor = entity.Valor,
-                Funcionario = entity.Funcionario, // <-- ASIGNACIÓN CORRECTA
-                Comentarios = entity.Comentarios,         
-                PuedeAprobar = false      
-            };
         }
 
         // GET: Anticipos/Create
@@ -364,6 +329,42 @@ namespace GestionAnticiposApp.Controllers
         // MÉTODOS PRIVADOS DE MAPEADO
         // ===============================
 
+        private ProcesosVinculados MapToEntity(AnticipoVM vm, int contratoId)
+        {
+            return new ProcesosVinculados
+            {
+                Codigo = vm.Codigo,
+                Estado = vm.Estado,
+                FechaSolicitud = vm.FechaSolicitud,
+                Valor = vm.Valor,
+                Comentarios = vm.Comentarios,
+                Tipo = 0, // 0 = Anticipo (según tu lógica)
+                ContratoId = contratoId,
+                Funcionario = vm.Funcionario,
+                Autorizador = vm.Autorizador
+            };
+        }
+
+        private AnticipoVM MapToVM(ProcesosVinculados entity)
+        {
+            return new AnticipoVM
+            {
+                Id = entity.Id,
+                Codigo = entity.Codigo,
+                Estado = entity.Estado,
+                FechaSolicitud = entity.FechaSolicitud,
+                Valor = entity.Valor,
+                Comentarios = entity.Comentarios,
+                Funcionario = entity.Funcionario,
+                Autorizador = entity.Autorizador,
+
+                // 👇 convertir cada Documento a string (su Archivo)
+                Documentos = entity.Documentos?
+                                    .Select(d => d.Archivo)
+                                    .ToList()
+                            ?? new List<string>()
+            };
+        }
 
 
     }
