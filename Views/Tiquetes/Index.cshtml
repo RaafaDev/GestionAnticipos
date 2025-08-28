@@ -1,6 +1,17 @@
-﻿@model IEnumerable<GestionAnticiposApp.ViewModels.TiquetesVM>
+﻿@model GestionAnticiposApp.Models.PaginatedList<GestionAnticiposApp.ViewModels.TiquetesVM>
 
 <h2>Tiquetes</h2>
+
+<form asp-action="Index" method="get" class="form-inline mb-3">
+    <input type="date" name="searchFechaSolicitud" value="@ViewData["searchFechaSolicitud"]" class="form-control mr-2" placeholder="Fecha solicitud" />
+    <input type="text" name="searchEstado" value="@ViewData["searchEstado"]" class="form-control mr-2" placeholder="Estado..." />
+    <input type="number" name="searchContratoId" value="@ViewData["searchContratoId"]" class="form-control mr-2" placeholder="Contrato ID..." />
+    <button type="submit" class="btn btn-primary">Filtrar</button>
+    <a class="btn btn-secondary ml-2"
+       asp-action="Index"
+       style="height:34px;">Limpiar filtros</a>
+</form>
+
 <table class="table">
     <thead>
         <tr>
@@ -30,6 +41,35 @@
         }
     </tbody>
 </table>
+
+<nav aria-label="Paginación">
+    <ul class="pagination">
+        <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+            <a class="page-link" asp-action="Index"
+               asp-route-pageIndex="@(Model.PageIndex - 1)"
+               asp-route-searchFechaSolicitud="@ViewData["searchFechaSolicitud"]"
+               asp-route-searchEstado="@ViewData["searchEstado"]"
+               asp-route-searchContratoId="@ViewData["searchContratoId"]">Anterior</a>
+        </li>
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                <a class="page-link" asp-action="Index"
+                   asp-route-pageIndex="@i"
+                   asp-route-searchFechaSolicitud="@ViewData["searchFechaSolicitud"]"
+                   asp-route-searchEstado="@ViewData["searchEstado"]"
+                   asp-route-searchContratoId="@ViewData["searchContratoId"]">@i</a>
+            </li>
+        }
+        <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+            <a class="page-link" asp-action="Index"
+               asp-route-pageIndex="@(Model.PageIndex + 1)"
+               asp-route-searchFechaSolicitud="@ViewData["searchFechaSolicitud"]"
+               asp-route-searchEstado="@ViewData["searchEstado"]"
+               asp-route-searchContratoId="@ViewData["searchContratoId"]">Siguiente</a>
+        </li>
+    </ul>
+</nav>
 
 <a asp-action="Create" class="btn btn-primary">Nuevo Tiquete</a>
 
