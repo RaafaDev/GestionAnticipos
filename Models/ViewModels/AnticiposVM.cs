@@ -15,8 +15,9 @@ namespace GestionAnticiposApp.Models.ViewModels
 
         public string? Autorizador { get; set; }
 
-        public List<Documentos> Documentos { get; set; } = new();
+       
 
+        public List<string> Documentos { get; set; } = new List<string>();
 
 
         // Campos adicionales solo para la vista
